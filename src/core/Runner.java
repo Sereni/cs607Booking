@@ -29,17 +29,28 @@ public class Runner {
 		
 		System.out.println("What is your email-id");
 		
-		Scanner scanner01 = new Scanner(System.in);
 		String userInput01 = scanner.nextLine();
 		
 		customer.setEmail_id(userInput01);
+		
+		
+		System.out.println("say 1 -> Booking & 2-> Cancelation");
+		
+		choice = scanner.nextInt();
+		
+		
+		if(choice == 1){
+			 event = new BookingEvent();
+		}else if(choice ==2){
+			event = new CancelEvent();
+		}
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-M-yyyy");
 		
 		System.out.println("Enter your Check_in date in dd-M-yyyy format");
 		
 		Scanner scanner02 = new Scanner(System.in);
-		String userInput02 = scanner.nextLine();
+		String userInput02 = scanner02.nextLine();
 		String in_dateInString =userInput02;
 		
 		Date in_date = null;
@@ -51,25 +62,15 @@ public class Runner {
 			e.printStackTrace();
 		}
 		
+		System.out.println(in_date);
+		
 		customer.setCheck_in(in_date);
 		
 		
-		System.out.println("say 1 -> Booking & 2-> Cancelation");
-		
-		Scanner scanner04 = new Scanner(System.in);
-		choice = scanner.nextInt();
-		
-		
-		if(choice == 1){
-			 event = new BookingEvent();
-		}else if(choice ==2){
-			event = new CancelEvent();
-		}
-		
-		System.out.println("Enter your Check_in date in dd-M-yyyy format");
+		System.out.println("Enter your Check_out date in dd-M-yyyy format");
 		
 		Scanner scanner03 = new Scanner(System.in);
-		String userInput03 = scanner.nextLine();
+		String userInput03 = scanner03.nextLine();
 		String out_dateInString =userInput03;
 		
 		Date out_date = null;
@@ -94,7 +95,7 @@ public class Runner {
 		System.out.println("What Type of room you need: say 1 <- Single 2 <- Double 3 <- Studio 4 <- Suite");	
 		
 		Scanner scanner05 = new Scanner(System.in);
-		int userInput05 = scanner.nextInt();
+		int userInput05 = scanner05.nextInt();
 		
 		if(userInput05 == 1)
 			type = RoomType.Single;
@@ -113,7 +114,7 @@ public class Runner {
 		System.out.println("which room do you want");
 		
 		Scanner scanner06 = new Scanner(System.in);
-		int userInput06 = scanner.nextInt();
+		int userInput06 = scanner06.nextInt();
 		
 		event.eventcreating(h.room.get(userInput06),in_date,out_date);
 		customer.addRoom(h.room.get(userInput06));
@@ -125,7 +126,8 @@ public class Runner {
 		}else if(choice == 2){
 		
 		////////// canceling
-			
+		
+		
 		
 		if(!av.checkAvailablity(h.room.get(2),in_date, out_date)){
 			event.eventcreating(h.room.get(2), in_date, out_date);
