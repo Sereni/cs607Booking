@@ -13,26 +13,14 @@ public class Room {
 
 	private int id;
 	private RoomType type;
-	private double basePrice = 100; // base price
+	private double basePrice; // base price
 	private Set<Date> booked = new HashSet<Date>();
 	
 	public Room( int id, RoomType type ) {
 		this.id = id;
 		this.type = type;
 		
-		switch (type) {
-		case Double:
-			this.basePrice = 2*basePrice - 5;
-			break;
-		case Studio:
-			this.basePrice = 2*basePrice + 50;
-			break;
-		case Suite:
-			this.basePrice = 2*basePrice + 100;
-			break;
-		default:
-			break;			
-		}
+		basePrice = 100; // base price
 	}
 	
 	public Integer getId() {
