@@ -3,7 +3,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-
+// TODO please fix: can't access room constructor from persistence package, need it to return values.
 enum RoomType {
 	Single, Double, Studio, Suite
 	};
