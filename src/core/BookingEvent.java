@@ -3,18 +3,32 @@ package core;
 import java.util.ArrayList;
 import java.util.Date;
 
+/**
+ * A kind of hotel event which related to booking process in a hotel
+ * @author Aida
+ *
+ */
 public class BookingEvent extends HotelEvent{
-
-	private ArrayList<Room> availableRooms;
 	
-	public BookingEvent(){
-	}
-	
+	/**
+	 * It's main flow of booking and it's based on requirements
+	 * 1. ask check in and check out dates from user
+	 * 2. ask room type from user
+	 * 3. find all available roomType rooms between checkIn and checkOut 
+	 * 4. show available rooms
+	 * 5. ask to choose one or more rooms from user
+	 * 6. block room
+	 * 7. ask user email
+	 * 8. calculate payment
+	 * 9. show summary and ask confirmation from user
+	 * 10. payment
+	 * 11. insert this booking in database
+	 */
 	@Override
 	protected void doEvent() {
 		askBookingDates();
 		//TODO: ask room type from user and pass to the below function
-		availableRooms = Availability.findAvailableRooms(checkIn, checkOut, RoomType.Single);
+		ArrayList<Room> availableRooms = Availability.findAvailableRooms(checkIn, checkOut, RoomType.Single);
 		
 		showAvailableRooms();
 		askForRooms();
@@ -23,10 +37,7 @@ public class BookingEvent extends HotelEvent{
 		}
 		askUserEmail();
 		
-		//TODO:read all booking rules from db
-		pricingRules = new ArrayList<>();
-		
-		double payment = calculatePayment();
+		double payment = Calculator.getInstance().getPayment(this);
 		
 		//TODO:get confirmation from user
 		//TODO:payment
@@ -57,22 +68,4 @@ public class BookingEvent extends HotelEvent{
 			room.addBooked(d);
 		}
 	}
-
-	@Override
-	protected double calculatePayment() {
-		double payment = 0;
-		double multiplier;
-		for (Date date = checkIn; date.compareTo(checkOut)<0; date = new Date(date.getTime() + (1000 * 60 * 60 * 24))){
-			for ( HotelPricingRule rule : pricingRules ) {
-				multiplier = rule.getMultiplier(date);
-				for ( Room room : rooms ) {
-					payment += room.getBasePrice()*multiplier;
-				}
-				if ( multiplier != 1 ) //we want to apply only one rule
-					break;
-			}
-		}
-		return payment;
-	}
-
 }

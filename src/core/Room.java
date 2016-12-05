@@ -8,27 +8,18 @@ enum RoomType {
 	Single, Double, Studio, Suite
 	};
 
-//TODO: add toString function
 public class Room {
 
 	private int id;
 	private RoomType type;
-	private double basePrice; // base price
+	private double basePrice;
 	private Set<Date> booked = new HashSet<Date>();
 	
-	public Room( int id, RoomType type ) {
+	public Room( int id, RoomType type, double basePrice, Set<Date> booked ) {
 		this.id = id;
 		this.type = type;
-		
-		basePrice = 100; // base price
-	}
-	
-	public Integer getId() {
-		return id;
-	}
-	
-	public void setId( int id ) {
-		this.id = id;
+		this.basePrice = basePrice;
+		this.booked = booked;
 	}
 	
 	public Set<Date> getBooked() {
@@ -47,17 +38,12 @@ public class Room {
 	public RoomType getType() {
 		return type;
 	}
-	////////ImMutable///////
-	private void setType(RoomType type) {
-		this.type = type;
-	}
 	
 	public double getBasePrice() {
 		return basePrice;
 	}
 	
-	private void setBasePrice(int price) {
-		this.basePrice = price;
+	public String toString() {
+		 return ("Room id: "+id+", type: "+type+", base price: "+basePrice);
 	}
-	
 }
