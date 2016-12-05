@@ -6,6 +6,13 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 
+/**
+ * abstract model for events in a hotel
+ * each event contains id, checkIn, checkOut, user email and list of rooms
+ * Booking and Cancel event (2 main event in our requirements) extends this class
+ * @author Aida
+ *
+ */
 public abstract class HotelEvent {
 
 	protected int id;
@@ -14,10 +21,17 @@ public abstract class HotelEvent {
 	protected String userEmail;
 	protected ArrayList<Room> rooms;
 
+	/**
+	 * start event
+	 */
 	public void start() {
 		doEvent();
 	}
 
+	/**
+	 * ask email from user
+	 * @return email
+	 */
 	protected String askUserEmail() {
 		String email = "";
 
@@ -32,6 +46,9 @@ public abstract class HotelEvent {
 		return email;
 	}
 
+	/**
+	 * abstract function which should be implemented in children classes
+	 */
 	protected abstract void doEvent();
 
 }

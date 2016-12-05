@@ -55,12 +55,8 @@ public class Calculator {
 		double multiplier;
 		for ( HotelPricingRule rule : cancellationPricingRules ) {
 			multiplier = rule.getMultiplier(cancel.checkIn);
-			for ( Room room : cancel.rooms ) {
-				payment += room.getBasePrice()*multiplier;
-			}
-			if ( multiplier != 1 ) //we want to apply only one rule
-				break;
+			return multiplier*payment;
 		}
-		return payment;
+		return 0; //no rules for cancellation
 	}
 }

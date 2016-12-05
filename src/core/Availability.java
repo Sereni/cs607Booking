@@ -3,89 +3,50 @@ package core;
 import java.util.ArrayList;
 import java.util.Date;
 
+/**
+ * This class is for checking availability and find available rooms
+ * 
+ * @author Aida
+ */
 public class Availability {
 	
+	/**
+	 * Give us an ArrayList of rooms with type of roomType (e.g. SINGLE) that are available between check in and check out dates
+	 * First we get all rooms with specified roomType from database
+	 * Second we check availability of each room
+	 * @param checkIn check in date
+	 * @param checkOut check out date
+	 * @param roomType type of room 
+	 * @return list of available rooms based on arguments
+	 */
 	public static ArrayList<Room> findAvailableRooms(Date checkIn, Date checkOut, RoomType roomType) {
-		
 		//TODO:get all rooms from DatabaseHandler with this roomType
 		// availableRooms = 
 		ArrayList<Room> availableRooms = new ArrayList<>();
 		
-		availableRooms = getAvailableRooms(availableRooms, checkIn, checkOut);
-		
-		return availableRooms;
-	}
-	
-	private static ArrayList<Room> getAvailableRooms(ArrayList<Room> availableRooms, Date checkIn, Date checkOut) {
+		// check availability of each room based on dates
 		for ( Room room : availableRooms ) {
-			for ( Date date = checkIn; date.compareTo(checkOut) < 0; date = new Date(date.getTime() + (1000*60*60*24)) ) {
-				if ( room.getBooked().contains(room) ) {
-					availableRooms.remove(room);
-					break;
-				}
-			}
+			if ( !isRoomAvailable(room, checkIn, checkOut) ) //if a room is not available we remove it from the list
+				availableRooms.remove(room);
 		}
 		return availableRooms;
 	}
 	
-//
-//	Hotel h;
-//	boolean booked;
-//
-//	CheckAvailablity(Hotel h){
-//		this.h = h;
-//	}
-//
-//	List<Integer> checkAvailablity(Date Check_InDate,Date Check_OutDate){
-//
-//		List<Integer> i = new ArrayList<Integer>();
-//
-//
-//
-//		for(Room r: h.room){
-//
-//			booked = false;
-//
-//
-//			for(Date d = Check_InDate; d.compareTo(Check_OutDate)<0; d = new Date(d.getTime() + (1000 * 60 * 60 * 24))){
-//				if(!booked){
-//					if(r.getBooked().contains(d)){
-//						booked = true;
-//
-//					}
-//				}else
-//					break;
-//
-//			}
-//			if(!booked)
-//				i.add(r.getId());
-//
-//		}
-//		return i;
-//
-//	}
-//
-//
-//
-//	boolean checkAvailablity(Room r,Date Check_InDate,Date Check_OutDate){
-//
-//		booked = false;
-//
-//		for(Date d = Check_InDate; d.compareTo(Check_OutDate)<0; d = new Date(d.getTime() + (1000 * 60 * 60 * 24))){
-//			if(!booked){
-//				if(r.getBooked().contains(d)){
-//					booked = true;
-//
-//				}
-//			}else
-//				break;
-//
-//		}
-//		if(!booked)
-//			return true;
-//		else
-//			return false;
-//
-//	}
-
+	/**
+	 * check availability of a room between check in and check out dates
+	 * a room is available if for each date from check in to checkout does not booked
+	 * @param room the room that we want to check the availability
+	 * @param checkIn check in date
+	 * @param checkOut check out date
+	 * @return true if room is available between specified dates and return false if it's not available
+	 */
+	public static boolean isRoomAvailable( Room room, Date checkIn, Date checkOut) {
+		//for each date between checkIn and checkOut inclusive checkIn and checkOut
+		for ( Date date = checkIn; date.compareTo(checkOut) < 0; date = new Date(date.getTime() + (1000*60*60*24)) ) {
+			if ( room.getBooked().contains(room) ) {
+				return false;
+			}
+		}
+		return true;
+	}
 }

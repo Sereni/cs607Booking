@@ -2,12 +2,26 @@ package core;
 
 import java.util.Date;
 
+/**
+ * A kind of hotel event which related to cancel process in a hotel
+ * @author Aida
+ *
+ */
 public class CancelEvent extends HotelEvent{
 
 	public CancelEvent(int id) {
 		this.id = id;
 	}
-	
+
+	/**
+	 * It's main flow of booking and it's based on requirements
+	 * 1. retrieve event related to this id from database
+	 * 2. ask user email and check it
+	 * 3. calculate refund
+	 * 4. show summary and ask confirmation from user
+	 * 5. pay back refund
+	 * 6. make this canceled database
+	 */
 	protected void doEvent() {
 		retrieveEvent();
 		
@@ -15,7 +29,7 @@ public class CancelEvent extends HotelEvent{
 		while ( !checkUserInfo(askUserEmail()) ) {
 		}
 		
-		double payment = Calculator.getInstance().getPayment(this);
+		double refund = Calculator.getInstance().getPayment(this);
 		//TODO: ask for confirmation
 		//TODO: payment
 		for ( Room room : rooms ) {
