@@ -22,6 +22,10 @@ public abstract class HotelEvent {
 	protected ArrayList<Room> rooms;
 	protected double payment;
 	
+	public HotelEvent() {
+		
+	}
+	
 	public HotelEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, double payment) {
 		this.id = id;
 		this.checkIn = checkIn;

@@ -10,9 +10,11 @@ import java.util.Date;
  */
 public class CancelEvent extends HotelEvent{
 
-//	public CancelEvent(int id) {
-//		this.id = id;
-//	}
+	private double refund;
+	
+	public CancelEvent(int id) {
+		this.id = id;
+	}
 
 	public CancelEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, double payment) {
 		super(id, checkIn, checkOut, userEmail, rooms, payment);
@@ -34,7 +36,7 @@ public class CancelEvent extends HotelEvent{
 		while ( !checkUserInfo(askUserEmail()) ) {
 		}
 		
-		double refund = Calculator.getInstance().getPayment(this);
+		refund = Calculator.getInstance().getPayment(this);
 		//TODO: ask for confirmation
 		//TODO: payment
 		for ( Room room : rooms ) {
