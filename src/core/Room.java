@@ -16,11 +16,11 @@ public class Room {
 	private double basePrice; // base price
 	private Set<Date> booked = new HashSet<Date>();
 	
-	public Room( int id, RoomType type ) {
+	public Room( int id, RoomType type, double basePrice, Set<Date> booked ) {
 		this.id = id;
 		this.type = type;
-		
-		basePrice = 100; // base price
+		this.basePrice = basePrice;
+		this.booked = booked;
 	}
 	
 	public Integer getId() {
