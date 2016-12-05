@@ -33,7 +33,7 @@ public class Calculator {
 		return instance;
 	}
 
-	public double getPayment(BookingEvent booking) {
+	public int getPayment(BookingEvent booking) {
 		double payment = 0;
 		double multiplier;
 		for (Date date = booking.checkIn; date.compareTo(booking.checkOut)<0; date = new Date(date.getTime() + (1000 * 60 * 60 * 24))){
@@ -46,16 +46,16 @@ public class Calculator {
 					break;
 			}
 		}
-		return payment;
+		return (int) payment;
 	}
 
 
-	public double getPayment(CancelEvent cancel) {
+	public int getPayment(CancelEvent cancel) {
 		double payment = 0;
 		double multiplier;
 		for ( HotelPricingRule rule : cancellationPricingRules ) {
 			multiplier = rule.getMultiplier(cancel.checkIn);
-			return multiplier*payment;
+			return (int) (multiplier*payment);
 		}
 		return 0; //no rules for cancellation
 	}

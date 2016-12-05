@@ -20,13 +20,13 @@ public abstract class HotelEvent {
 	public Date checkOut;
 	public String userEmail;
 	public ArrayList<Room> rooms;
-	public double payment;
+	public int payment;
 	
 	public HotelEvent() {
 		
 	}
 	
-	public HotelEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, double payment) {
+	public HotelEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, int payment) {
 		this.id = id;
 		this.checkIn = checkIn;
 		this.checkOut = checkOut;

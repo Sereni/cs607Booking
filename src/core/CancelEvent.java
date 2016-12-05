@@ -10,13 +10,13 @@ import java.util.Date;
  */
 public class CancelEvent extends HotelEvent{
 
-	private double refund;
+	private int refund;
 	
 	public CancelEvent(int id) {
 		this.id = id;
 	}
 
-	public CancelEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, double payment, double refund) {
+	public CancelEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, int payment, int refund) {
 		super(id, checkIn, checkOut, userEmail, rooms, payment);
 		this.refund = refund;
 	}
