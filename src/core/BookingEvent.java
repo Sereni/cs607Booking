@@ -13,7 +13,7 @@ public class BookingEvent extends HotelEvent{
 	public BookingEvent() {
 	}
 	
-	public BookingEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, double payment) {
+	public BookingEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, int payment) {
 		super(id, checkIn, checkOut, userEmail, rooms, payment);
 	}
 
