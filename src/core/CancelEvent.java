@@ -16,8 +16,9 @@ public class CancelEvent extends HotelEvent{
 		this.id = id;
 	}
 
-	public CancelEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, double payment) {
+	public CancelEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, double payment, double refund) {
 		super(id, checkIn, checkOut, userEmail, rooms, payment);
+		this.refund = refund;
 	}
 
 	/**
