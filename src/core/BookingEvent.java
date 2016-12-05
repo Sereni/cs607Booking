@@ -37,7 +37,7 @@ public class BookingEvent extends HotelEvent{
 		//TODO: ask room type from user and pass to the below function
 		ArrayList<Room> availableRooms = Availability.findAvailableRooms(checkIn, checkOut, RoomType.Single);
 		
-		showAvailableRooms();
+		showAvailableRooms(availableRooms);
 		askForRooms();
 		for ( Room room : rooms ) {
 			blockRoom( room );
@@ -60,7 +60,7 @@ public class BookingEvent extends HotelEvent{
 	}
 	
 	//TODO: show available rooms array list to user
-	private void showAvailableRooms() {
+	private void showAvailableRooms(ArrayList<Room> rooms) {
 	}
 	
 	//TODO: ask from user based on showing available rooms
