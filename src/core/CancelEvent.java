@@ -1,5 +1,6 @@
 package core;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -9,8 +10,15 @@ import java.util.Date;
  */
 public class CancelEvent extends HotelEvent{
 
+	private double refund;
+	
 	public CancelEvent(int id) {
 		this.id = id;
+	}
+
+	public CancelEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, double payment, double refund) {
+		super(id, checkIn, checkOut, userEmail, rooms, payment);
+		this.refund = refund;
 	}
 
 	/**
@@ -29,7 +37,7 @@ public class CancelEvent extends HotelEvent{
 		while ( !checkUserInfo(askUserEmail()) ) {
 		}
 		
-		double refund = Calculator.getInstance().getPayment(this);
+		refund = Calculator.getInstance().getPayment(this);
 		//TODO: ask for confirmation
 		//TODO: payment
 		for ( Room room : rooms ) {

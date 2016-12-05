@@ -44,6 +44,6 @@ public class Room {
 	}
 	
 	public String toString() {
-		 return ("Room id: "+id+", type: "+type+", base price: "+basePrice);
+		 return ("Room id: "+id+", base price: "+basePrice);
 	}
 }

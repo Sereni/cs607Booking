@@ -10,6 +10,13 @@ import java.util.Date;
  */
 public class BookingEvent extends HotelEvent{
 	
+	public BookingEvent() {
+	}
+	
+	public BookingEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, double payment) {
+		super(id, checkIn, checkOut, userEmail, rooms, payment);
+	}
+
 	/**
 	 * It's main flow of booking and it's based on requirements
 	 * 1. ask check in and check out dates from user
@@ -30,14 +37,14 @@ public class BookingEvent extends HotelEvent{
 		//TODO: ask room type from user and pass to the below function
 		ArrayList<Room> availableRooms = Availability.findAvailableRooms(checkIn, checkOut, RoomType.Single);
 		
-		showAvailableRooms();
+		showAvailableRooms(availableRooms);
 		askForRooms();
 		for ( Room room : rooms ) {
 			blockRoom( room );
 		}
 		askUserEmail();
 		
-		double payment = Calculator.getInstance().getPayment(this);
+		payment = Calculator.getInstance().getPayment(this);
 		
 		//TODO:get confirmation from user
 		//TODO:payment
@@ -53,7 +60,7 @@ public class BookingEvent extends HotelEvent{
 	}
 	
 	//TODO: show available rooms array list to user
-	private void showAvailableRooms() {
+	private void showAvailableRooms(ArrayList<Room> rooms) {
 	}
 	
 	//TODO: ask from user based on showing available rooms

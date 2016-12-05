@@ -20,6 +20,20 @@ public abstract class HotelEvent {
 	protected Date checkOut;
 	protected String userEmail;
 	protected ArrayList<Room> rooms;
+	protected double payment;
+	
+	public HotelEvent() {
+		
+	}
+	
+	public HotelEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, double payment) {
+		this.id = id;
+		this.checkIn = checkIn;
+		this.checkOut = checkOut;
+		this.userEmail = userEmail;
+		this.rooms = rooms;
+		this.payment = payment;
+	}
 
 	/**
 	 * start event
