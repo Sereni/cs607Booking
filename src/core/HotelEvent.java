@@ -15,12 +15,12 @@ import java.util.Date;
  */
 public abstract class HotelEvent {
 
-	protected int id;
-	protected Date checkIn;
-	protected Date checkOut;
-	protected String userEmail;
-	protected ArrayList<Room> rooms;
-	protected double payment;
+	public int id;
+	public Date checkIn;
+	public Date checkOut;
+	public String userEmail;
+	public ArrayList<Room> rooms;
+	public double payment;
 	
 	public HotelEvent() {
 		
