@@ -46,4 +46,5 @@ public class Room {
 	public String toString() {
 		 return ("Room id: "+id+", base price: "+basePrice);
 	}
+	public int getId() {return id;}
 }
