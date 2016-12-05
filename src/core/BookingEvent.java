@@ -23,10 +23,7 @@ public class BookingEvent extends HotelEvent{
 		}
 		askUserEmail();
 		
-		//TODO:read all booking rules from db
-		pricingRules = new ArrayList<>();
-		
-		double payment = calculatePayment();
+		double payment = Calculator.getInstance().getPayment(this);
 		
 		//TODO:get confirmation from user
 		//TODO:payment
@@ -57,22 +54,4 @@ public class BookingEvent extends HotelEvent{
 			room.addBooked(d);
 		}
 	}
-
-	@Override
-	protected double calculatePayment() {
-		double payment = 0;
-		double multiplier;
-		for (Date date = checkIn; date.compareTo(checkOut)<0; date = new Date(date.getTime() + (1000 * 60 * 60 * 24))){
-			for ( HotelPricingRule rule : pricingRules ) {
-				multiplier = rule.getMultiplier(date);
-				for ( Room room : rooms ) {
-					payment += room.getBasePrice()*multiplier;
-				}
-				if ( multiplier != 1 ) //we want to apply only one rule
-					break;
-			}
-		}
-		return payment;
-	}
-
 }

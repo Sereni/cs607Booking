@@ -13,7 +13,6 @@ public abstract class HotelEvent {
 	protected Date checkOut;
 	protected String userEmail;
 	protected ArrayList<Room> rooms;
-	protected ArrayList<HotelPricingRule> pricingRules;
 
 	public void start() {
 		doEvent();
@@ -32,8 +31,6 @@ public abstract class HotelEvent {
 		}
 		return email;
 	}
-
-	protected abstract double calculatePayment(); 
 
 	protected abstract void doEvent();
 

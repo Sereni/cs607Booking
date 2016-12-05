@@ -14,7 +14,8 @@ public class CancelEvent extends HotelEvent{
 		//TODO: make it quitable :D
 		while ( !checkUserInfo(askUserEmail()) ) {
 		}
-		double payment = calculatePayment();
+		
+		double payment = Calculator.getInstance().getPayment(this);
 		//TODO: ask for confirmation
 		//TODO: payment
 		for ( Room room : rooms ) {
@@ -37,12 +38,6 @@ public class CancelEvent extends HotelEvent{
 		for(Date d = checkIn; d.compareTo(checkOut)<0; d = new Date(d.getTime() + (1000 * 60 * 60 * 24))){
 			room.removeBooked(d);
 		}
-	}
-
-	@Override
-	protected double calculatePayment() {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 }
