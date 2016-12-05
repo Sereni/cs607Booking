@@ -10,6 +10,10 @@ import java.util.Date;
  */
 public class BookingEvent extends HotelEvent{
 	
+	public BookingEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, double payment) {
+		super(id, checkIn, checkOut, userEmail, rooms, payment);
+	}
+
 	/**
 	 * It's main flow of booking and it's based on requirements
 	 * 1. ask check in and check out dates from user
@@ -37,7 +41,7 @@ public class BookingEvent extends HotelEvent{
 		}
 		askUserEmail();
 		
-		double payment = Calculator.getInstance().getPayment(this);
+		payment = Calculator.getInstance().getPayment(this);
 		
 		//TODO:get confirmation from user
 		//TODO:payment

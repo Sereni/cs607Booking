@@ -1,5 +1,6 @@
 package core;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -9,8 +10,12 @@ import java.util.Date;
  */
 public class CancelEvent extends HotelEvent{
 
-	public CancelEvent(int id) {
-		this.id = id;
+//	public CancelEvent(int id) {
+//		this.id = id;
+//	}
+
+	public CancelEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, double payment) {
+		super(id, checkIn, checkOut, userEmail, rooms, payment);
 	}
 
 	/**
