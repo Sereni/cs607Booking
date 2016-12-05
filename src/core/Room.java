@@ -3,7 +3,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-// TODO please fix: can't access room constructor from persistence package, need it to return values.
 enum RoomType {
 	Single, Double, Studio, Suite
 	};
@@ -18,6 +17,13 @@ public class Room {
 	public Room( int id, RoomType type, double basePrice, Set<Date> booked ) {
 		this.id = id;
 		this.type = type;
+		this.basePrice = basePrice;
+		this.booked = booked;
+	}
+
+	public Room( int id, String type, double basePrice, Set<Date> booked ) {
+		this.id = id;
+		this.type = RoomType.valueOf(type);
 		this.basePrice = basePrice;
 		this.booked = booked;
 	}
