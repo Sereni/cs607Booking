@@ -58,12 +58,10 @@ public class DatabaseSetup {
 //                        + ");"
 //        );
 
-        // create table rooms
-        // todo when you get rooms from database, go to room-booking, then to individual bookings to collect unavailable dates
         statements.add(
                 "CREATE TABLE IF NOT EXISTS rooms (\n"
                         + "id integer PRIMARY KEY,\n"
-                        + "price integer NOT NULL,\n" // fixme this is double in Room class, should be integer?
+                        + "price integer NOT NULL,\n"
                         + "type text NOT NULL"
                         + ");"
         );

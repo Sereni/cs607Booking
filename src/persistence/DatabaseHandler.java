@@ -1,69 +1,160 @@
 package persistence;
-import core.BookingEvent;
+import core.*;
 import java.sql.*;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by Sereni on 12/3/16.
  */
 class RecordNotFoundException extends Exception{}
 
-// todo write a script to create tables
+
 public class DatabaseHandler {
 
     private String databaseName = "jdbc:sqlite:development.db";
+    private SimpleDateFormat formatter = new SimpleDateFormat("dd-MM");
 
     /**
-     * Creates a database entry from a BookingEvent object.
-     * **/
-    public void makeBooking(BookingEvent booking) throws SQLException {
-        String sql = "insert into bookings ()" +  // todo fill in the values when decided on fields
-                     String.format("values ()");
+     * Creates a database entry from a BookingEvent object. Returns booking number.
+     */
+    public int makeBooking(BookingEvent booking) throws SQLException {
+
+        String sql = "insert into bookings (email, checkin, checkout, price)" +
+                     String.format("values (%s, %s, %s, %d);", booking.userEmail, formatter.format(booking.checkIn),
+                             formatter.format(booking.checkOut), booking.payment);
         update(sql);
+        ResultSet lastId = select("SELECT last_insert_rowid()");
+        lastId.next();
+        int bookingNumber = lastId.getInt(1);
+
+        for (Room r: booking.rooms) {
+            sql = String.format("insert into room_booking_junction (room_id, booking_id) values (%d, %d)",
+                    r.getId(), bookingNumber);
+            update(sql);
+        }
+        return bookingNumber;
     }
 
-    public BookingEvent getBooking(int number) throws SQLException, RecordNotFoundException {
-        String sql = String.format("select * from bookings where number=%d;", number);
+    public BookingEvent getBooking(int number) throws SQLException, RecordNotFoundException, ParseException {
+        String sql = String.format("select * from bookings where id=%d;", number);
         ResultSet results = select(sql);
         if (!results.next()) {
             throw new RecordNotFoundException();
         }
-        BookingEvent booking = new BookingEvent();
-        // todo fill in the fields when you know what the schema is
-        // does BookingEvent have setters, direct access, or a constructor?
+        int bookingId = results.getInt("id");
+        String email = results.getString("email");
+        Date checkin = (Date)formatter.parse(results.getString("checkin"));
+        Date checkout = (Date)formatter.parse(results.getString("checkout"));
+        int price = results.getInt("price");
+        ArrayList<Room> rooms = new ArrayList<>();
+
+        ResultSet roomData = select(String.format("select room_id from room_booking_junction where booking_id=%d", bookingId));
+        while (roomData.next()) {
+            rooms.add(getRoom(roomData.getInt("id")));
+        }
+        BookingEvent booking = new BookingEvent(bookingId, checkin, checkout, email, rooms, price);
         return booking;
     }
 
-    public void cancelBooking(int number) throws SQLException {
-        String sql = String.format("update bookings set canceled=1 where number=%d;", number);
+    public void cancelBooking(CancelEvent cancel) throws SQLException {
+        String sql = String.format("update bookings set canceled=1 refund=%d where id=%d;", cancel.getRefund(), cancel.id);
         update(sql);
     }
 
+
+    public ArrayList<Room> getRooms(String type) throws SQLException {
+        String sql = String.format("select * from rooms where type=%s", type);
+        ResultSet roomData = select(sql);
+        ArrayList<Room> rooms = new ArrayList<>();
+        Set<java.util.Date> booked;
+        int roomId;
+        String roomType;
+        int price;
+
+        while (roomData.next()) {
+            roomId = roomData.getInt("id");
+            roomType = roomData.getString("type");
+            price = roomData.getInt("price");
+            booked = getBookedDates(roomId);
+            rooms.add(new Room(roomId, roomType, price, booked));
+        }
+        return rooms;
+    }
+
+    // todo we'll need some kind of cleanup, when the booking date passes, rooms should free up
+
     /**
-     * Get the next available booking number from the database.
+     * Look up the room by its number.
+     * @param id int: room number.
+     * @return Room with a matching id.
+     * @throws SQLException
+     * @throws RecordNotFoundException if room with this number does not exist.
      */
-    public int getNextBookingNumber() throws SQLException {
-        String sql = "select number from bookings order by number desc limit 1;";
-        ResultSet results = select(sql);
-        if (results.next()) {
-            return results.getInt(0);
-        } else return 1;
+    public Room getRoom(int id) throws SQLException, RecordNotFoundException {
+        String sql = String.format("select * from rooms where id=%d", id);
+        ResultSet roomData = select(sql);
+        if (!roomData.next()) {
+            throw new RecordNotFoundException();
+        }
+        int roomId = roomData.getInt("id");
+        return new Room(roomId,
+                roomData.getString("type"),
+                roomData.getInt("price"),
+                getBookedDates(roomId));
     }
 
-    // todo load all info on rooms and convert it into whatever the core code expects.
-    // also decide how to store it
-    public void getRooms() {
 
+    public HashSet<java.util.Date> getBookedDates(int roomId) throws SQLException {
+        String sql = String.format("select (bookings.checkin, bookings.checkout, bookings.canceled) "
+                + "from room_booking_junction inner join bookings on bookings.id=room_booking_junction.booking_id "
+                + "where room_id=%d;", roomId);
+        ResultSet dateRecords = select(sql);
+        HashSet<java.util.Date> dates = new HashSet<>();
+        while (dateRecords.next()) {
+            if (!dateRecords.getBoolean("canceled")) {
+                try {
+                    java.util.Date checkin = formatter.parse(dateRecords.getString("checkin"));
+                    java.util.Date checkout = formatter.parse(dateRecords.getString("checkout"));
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(checkin);
+                    while (cal.getTime().before(checkout)) {
+                        dates.add(cal.getTime());
+                        cal.add(Calendar.DATE, 1);
+                    }
+                } catch (ParseException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        }
+        return dates;
     }
 
-    public float getRate(Date date) {
-		return 0;}
 
-    public void setRate(Date date, float rate){}
+    public ArrayList<BookingPricingRule> getCalendarRules() throws SQLException, ParseException {
+        String sql = "select * from calendar_rules";
+        Float rate;
+        HashSet<java.util.Date> dates;
+        ResultSet ruleData = select(sql);
+        HashMap<Float, HashSet<java.util.Date>> tempRules = new HashMap<>();
+        while (ruleData.next()) {
+            rate = ruleData.getFloat("rate");
+            dates = tempRules.get(rate);
+            if (dates == null) dates = new HashSet<>();
+            dates.add(formatter.parse(ruleData.getString("date")));
+            tempRules.put(rate, dates);
+        }
+        ArrayList<BookingPricingRule> rules = new ArrayList<>();
+        for (Map.Entry<Float, HashSet<java.util.Date>> e: tempRules.entrySet()) {
+            rules.add(new BookingPricingRule(e.getKey(), new ArrayList<>(e.getValue())));
+        }
+        return rules;
+    }
 
-    public int getBasePrice(String roomType) {
-		return 0;}
+    public void setDayRate(Date date, float rate){}
 
-    public void setBasePrice(String roomType, int price) {}
 
     /**
      * Establishes connection to the database and performs update with given SQL command.
@@ -72,7 +163,7 @@ public class DatabaseHandler {
         Connection connection;
         Statement statement;
 
-        connection = DriverManager.getConnection(databaseName);  // todo make it find it
+        connection = DriverManager.getConnection(databaseName);
         connection.setAutoCommit(false);
         statement = connection.createStatement();
         statement.executeUpdate(sql);
@@ -100,6 +191,4 @@ public class DatabaseHandler {
         connection.close();
         return result;
     }
-
-
 }
