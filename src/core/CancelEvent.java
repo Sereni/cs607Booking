@@ -64,4 +64,6 @@ public class CancelEvent extends HotelEvent{
 		}
 	}
 
+	public int getRefund() {return this.refund;}
+
 }
