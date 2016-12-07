@@ -35,9 +35,11 @@ public class CancelEvent extends HotelEvent{
 		
 		//TODO: make it quitable :D
 		while ( !checkUserInfo(askUserEmail()) ) {
+			System.out.println("You entered wrong email, please try again");
 		}
-		
+	
 		refund = Calculator.getInstance().getPayment(this);
+		
 		//TODO: ask for confirmation
 		//TODO: payment
 		for ( Room room : rooms ) {
