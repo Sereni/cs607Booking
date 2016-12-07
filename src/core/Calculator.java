@@ -3,6 +3,8 @@ package core;
 import java.util.ArrayList;
 import java.util.Date;
 
+import persistence.DatabaseHandler;
+
 /**
  * singelton calculator
  * @author aida

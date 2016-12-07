@@ -3,11 +3,9 @@ package core;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
+import persistence.DatabaseHandler;
 
 public class Runner {
-	
-	public static ArrayList<Room> blockedRoom;
 	
 	enum HotelEventType {
 		BOOKING, CANCELING
@@ -34,7 +32,13 @@ public class Runner {
 			} catch (NumberFormatException e) { //TODO: handle exception better
 				e.printStackTrace();
 			}
-			new CancelEvent(id);
+			//retrieve event
+			try {
+				CancelEvent event = new DatabaseHandler().getCancelingBooking(id);
+				event.start();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		System.out.println("---------------------------");
 	}

@@ -9,6 +9,7 @@ import java.util.*;
 /**
  * Created by Sereni on 12/3/16.
  */
+@SuppressWarnings("serial")
 class RecordNotFoundException extends Exception{}
 
 
@@ -38,7 +39,7 @@ public class DatabaseHandler {
         return bookingNumber;
     }
 
-    public BookingEvent getBooking(int number) throws SQLException, RecordNotFoundException, ParseException {
+    public CancelEvent getCancelingBooking(int number) throws SQLException, RecordNotFoundException, ParseException {
         String sql = String.format("select * from bookings where id=%d;", number);
         ResultSet results = select(sql);
         if (!results.next()) {
@@ -55,8 +56,8 @@ public class DatabaseHandler {
         while (roomData.next()) {
             rooms.add(getRoom(roomData.getInt("id")));
         }
-        BookingEvent booking = new BookingEvent(bookingId, checkin, checkout, email, rooms, price);
-        return booking;
+        CancelEvent cancel = new CancelEvent(bookingId, checkin, checkout, email, rooms, price, 0);
+        return cancel;
     }
 
     public void cancelBooking(CancelEvent cancel) throws SQLException {

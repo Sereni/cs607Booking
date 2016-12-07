@@ -2,10 +2,12 @@ package core;
 
 public class BankApi {
 
-	public boolean pay(int payment) {
+	public static boolean pay(int payment) {
+		System.out.println("you pay "+payment+"$");
 		return true;
 	}
-	public boolean refund(int refund) {
+	public static boolean refund(int refund) {
+		System.out.println("we refund you "+refund+"$");
 		return true;
 	}
 }

@@ -1,7 +1,10 @@
 package core;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+
+import persistence.DatabaseHandler;
 
 /**
  * This class is for checking availability and find available rooms
@@ -20,15 +23,24 @@ public class Availability {
 	 * @return list of available rooms based on arguments
 	 */
 	public static ArrayList<Room> findAvailableRooms(Date checkIn, Date checkOut, RoomType roomType) {
-		//TODO:get all rooms from DatabaseHandler with this roomType
-		// availableRooms = 
-		ArrayList<Room> availableRooms = new ArrayList<>();
+		
+		// read all rooms with specified roomType
+		ArrayList<Room> availableRooms;
+		try {
+			availableRooms = new DatabaseHandler().getRooms(roomType.name());
+		} catch (SQLException e) {
+			// TODO handle exception better
+			availableRooms = new ArrayList<Room>();
+			e.printStackTrace();
+		}
 		
 		// check availability of each room based on dates
 		for ( Room room : availableRooms ) {
 			if ( !isRoomAvailable(room, checkIn, checkOut) ) //if a room is not available we remove it from the list
 				availableRooms.remove(room);
 		}
+		
+		//TODO: check with array list of blocked room in Runner
 		return availableRooms;
 	}
 	

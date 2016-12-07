@@ -1,7 +1,13 @@
 package core;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+
+import persistence.DatabaseHandler;
 
 /**
  * A kind of hotel event which related to cancel process in a hotel
@@ -31,7 +37,6 @@ public class CancelEvent extends HotelEvent{
 	 * 6. make this canceled database
 	 */
 	protected void doEvent() {
-		retrieveEvent();
 		
 		//TODO: make it quitable :D
 		while ( !checkUserInfo(askUserEmail()) ) {
@@ -40,18 +45,18 @@ public class CancelEvent extends HotelEvent{
 	
 		refund = Calculator.getInstance().getPayment(this);
 		
-		//TODO: ask for confirmation
-		//TODO: payment
-		for ( Room room : rooms ) {
-			cancelRoom(room);
+		if ( userConfirmation() ) {
+			BankApi.refund(refund);
+			for ( Room room : rooms ) {
+				cancelRoom(room);
+			}
+			try {
+				new DatabaseHandler().cancelBooking(this);
+			} catch (SQLException e) {
+				// TODO Handle
+				e.printStackTrace();
+			}
 		}
-		//TODO: change this record in database
-		
-	}
-
-	private void retrieveEvent() {
-		//TODO: read the event with the id from database
-		// this = DatabaseHandler.getBooking(id);
 	}
 	
 	private boolean checkUserInfo(String email) {
@@ -65,5 +70,25 @@ public class CancelEvent extends HotelEvent{
 	}
 
 	public int getRefund() {return this.refund;}
+
+	
+	protected boolean userConfirmation() {
+		System.out.println("You want to cancel booking with id "+id+" and contains these rooms:");
+		for ( Room room:rooms ) {
+			System.out.println(room);
+		}
+		System.out.println("Payment: (what you paid before) "+refund+"$");
+		System.out.println("Refund: (what we will pay you back if u cancel)"+refund+"$");
+		System.out.println("Do you confirm? (y/n)");
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		try {
+			if ( in.readLine().equals("y") )
+				return true;
+		} catch (IOException e) {
+			// TODO Handle
+			e.printStackTrace();
+		}
+		return false;
+	}
 
 }

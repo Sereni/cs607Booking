@@ -23,10 +23,11 @@ public abstract class HotelEvent {
 	public int payment;
 	
 	public HotelEvent() {
-		
+		rooms = new ArrayList<>();
 	}
 	
 	public HotelEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, int payment) {
+		this();
 		this.id = id;
 		this.checkIn = checkIn;
 		this.checkOut = checkOut;
@@ -60,6 +61,8 @@ public abstract class HotelEvent {
 		return email;
 	}
 
+	protected abstract boolean userConfirmation();
+	
 	/**
 	 * abstract function which should be implemented in children classes
 	 */
