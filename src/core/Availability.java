@@ -1,6 +1,5 @@
 package core;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -28,7 +27,7 @@ public class Availability {
 		ArrayList<Room> availableRooms;
 		try {
 			availableRooms = new DatabaseHandler().getRooms(roomType.name());
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			// TODO handle exception better
 			availableRooms = new ArrayList<Room>();
 			e.printStackTrace();

@@ -3,7 +3,6 @@ package core;
 import java.util.ArrayList;
 import java.util.Date;
 
-import persistence.DatabaseHandler;
 
 /**
  * singelton calculator
@@ -37,16 +36,17 @@ public class Calculator {
 
 	public int getPayment(BookingEvent booking) {
 		double payment = 0;
-		double multiplier;
-		for (Date date = booking.checkIn; date.compareTo(booking.checkOut)<0; date = new Date(date.getTime() + (1000 * 60 * 60 * 24))){
-			for ( HotelPricingRule rule : bookingPricingRules ) {
-				multiplier = rule.getMultiplier(date);
+		double multiplier=1;
+		for (Date date = booking.checkIn; date.compareTo(booking.checkOut)<0; date = new Date(date.getTime() + (1000 * 60 * 60 * 24))) {
 				for ( Room room : booking.rooms ) {
+					for ( HotelPricingRule rule : bookingPricingRules ) {
+						multiplier = rule.getMultiplier(date);
+					}
 					payment += room.getBasePrice()*multiplier;
+					if ( multiplier != 1 ) //we want to apply only one rule
+							break;
 				}
-				if ( multiplier != 1 ) //we want to apply only one rule
-					break;
-			}
+				
 		}
 		return (int) payment;
 	}

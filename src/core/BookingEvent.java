@@ -3,7 +3,6 @@ package core;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -57,12 +56,10 @@ public class BookingEvent extends HotelEvent{
 		if ( userConfirmation() ) {
 			BankApi.pay(payment);
 		}
-		try {
-			new DatabaseHandler().makeBooking(this);
-		} catch (SQLException e) {
-			// TODO  handle
-			e.printStackTrace();
-		}
+
+		new DatabaseHandler().getRooms("Single");
+//		new DatabaseHandler().makeBooking(this);
+		
 	}
 	
 	private void askBookingDates() {
@@ -114,7 +111,7 @@ public class BookingEvent extends HotelEvent{
 		//TODO:handle exception
 		try {
 			int selectedIndex = Integer.parseInt(in.readLine());
-			selectedRoomType = RoomType.values()[selectedIndex]; //map index to room type
+			selectedRoomType = RoomType.values()[selectedIndex-1]; //map index to room type
 		} catch (Exception e) {
 			selectedRoomType = RoomType.Single;
 			e.printStackTrace();
