@@ -64,7 +64,7 @@ public class DatabaseHandler {
 			
 			lastId.next();
 			bookingNumber = lastId.getInt(1);
-		      System.out.println("last id..."+sql+"    "+bookingNumber);
+//		      System.out.println("last id..."+sql+"    "+bookingNumber);
 
 		} catch (Exception e) {
 		    e.printStackTrace();
