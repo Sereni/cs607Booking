@@ -36,7 +36,7 @@ public class DatabaseHandler {
 					String.format("values ('%s', '%s', '%s', %d);", booking.userEmail, formatter.format(booking.checkIn),
 							formatter.format(booking.checkOut), booking.payment);
 			statement.executeUpdate(sql);
-		      System.out.println("Inserted records into the table..."+sql);
+//		      System.out.println("Inserted records into the table..."+sql);
 		} catch (Exception e) {
 		    e.printStackTrace();
 		} finally {
@@ -126,6 +126,7 @@ public class DatabaseHandler {
 		Date checkin = null;
 		Date checkout = null;
 		int price = 0;
+		int refund = 0;
 		
 		try {
 			connection = DriverManager.getConnection(databaseName);
@@ -143,6 +144,7 @@ public class DatabaseHandler {
 			checkin = (Date)formatter.parse(results.getString("checkin"));
 			checkout = (Date)formatter.parse(results.getString("checkout"));
 			price = results.getInt("price");
+			refund = results.getInt("refund");
 			
 		} catch (Exception e) {
 		    e.printStackTrace();
@@ -196,8 +198,7 @@ public class DatabaseHandler {
 				e.printStackTrace();
 			}
 		}
-		
-		CancelEvent cancel = new CancelEvent(bookingId, checkin, checkout, email, rooms, price, 0);
+		CancelEvent cancel = new CancelEvent(bookingId, checkin, checkout, email, rooms, price, refund);
 		
 		return cancel;
 	}

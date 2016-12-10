@@ -77,7 +77,7 @@ public class CancelEvent extends HotelEvent{
 		for ( Room room:rooms ) {
 			System.out.println(room);
 		}
-		System.out.println("Payment: (what you paid before) "+refund+"$");
+		System.out.println("Payment: (what you paid before) "+payment+"$");
 		System.out.println("Refund: (what we will pay you back if u cancel)"+refund+"$");
 		System.out.println("Do you confirm? (y/n)");
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
