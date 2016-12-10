@@ -86,33 +86,33 @@ public class DatabaseHandler {
 				e.printStackTrace();
 			}
 		}
-//
-//		Statement statement3 = null;
-//		for (Room r: booking.rooms) {
-//			try {
-//				connection = DriverManager.getConnection(databaseName);
-//				connection.setAutoCommit(false);
-//				statement3 = connection.createStatement();
-//				
-//				String sql = String.format("insert into room_booking_junction (room_id, booking_id) values (%d, %d)",
-//						r.getId(), bookingNumber);
-//				statement3.executeUpdate(sql);
-//			} catch (Exception e) {
-//			    e.printStackTrace();
-//			} finally {
-//				try {
-//					statement.close();
-//				} catch (SQLException e) {
-//					e.printStackTrace();
-//				}
-//				try {
-//					connection.commit();
-//					connection.close();
-//				} catch (SQLException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		}
+
+		Statement statement3 = null;
+		for (Room r: booking.rooms) {
+			try {
+				connection = DriverManager.getConnection(databaseName);
+				connection.setAutoCommit(false);
+				statement3 = connection.createStatement();
+				
+				String sql = String.format("insert into room_booking_junction (room_id, booking_id) values (%d, %d)",
+						r.getId(), bookingNumber);
+				statement3.executeUpdate(sql);
+			} catch (Exception e) {
+			    e.printStackTrace();
+			} finally {
+				try {
+					statement3.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				try {
+					connection.commit();
+					connection.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 		return bookingNumber;
 	}
 
@@ -174,7 +174,7 @@ public class DatabaseHandler {
 			results = statement.executeQuery(sql);
 			
 			while (results.next()) {
-				rooms.add(getRoom(results.getInt("id")));
+				rooms.add(getRoom(results.getInt("room_id")));
 			}
 			
 		} catch (Exception e) {

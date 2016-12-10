@@ -18,9 +18,9 @@ public class Runner {
 	
 	private static void factoryMethod(HotelEventType type) {
 		System.out.println(type);
-		if ( type == HotelEventType.BOOKING ) {
-			new BookingEvent().start();
-		}
+//		if ( type == HotelEventType.BOOKING ) {
+//			new BookingEvent().start();
+//		}
 		if ( type == HotelEventType.CANCELING ) {
 			int id = 0;
 			System.out.println("enter id of booking");
