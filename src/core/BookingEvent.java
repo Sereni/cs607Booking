@@ -50,15 +50,14 @@ public class BookingEvent extends HotelEvent{
 		for ( Room room : rooms ) {
 			blockRoom( room );
 		}
-		askUserEmail();
+		userEmail = askUserEmail();
 		payment = Calculator.getInstance().getPayment(this);
 		
 		if ( userConfirmation() ) {
 			BankApi.pay(payment);
 		}
 
-		new DatabaseHandler().getRooms("Single");
-//		new DatabaseHandler().makeBooking(this);
+		new DatabaseHandler().makeBooking(this);
 		
 	}
 	

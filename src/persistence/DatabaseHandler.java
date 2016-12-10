@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
 
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.ParseException;
+
 /**
  * Created by Sereni on 12/3/16.
  */
@@ -16,9 +18,6 @@ public class DatabaseHandler {
 
 	private static String databaseName = "jdbc:sqlite:development.db";
 	private SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-
-	private static Connection connection;
-	private static Statement statement;
 
 	/**
 	 * Creates a database entry from a BookingEvent object. Returns booking number.
@@ -36,7 +35,8 @@ public class DatabaseHandler {
 			String sql = "insert into bookings (email, checkin, checkout, price) " +
 					String.format("values ('%s', '%s', '%s', %d);", booking.userEmail, formatter.format(booking.checkIn),
 							formatter.format(booking.checkOut), booking.payment);
-			statement.executeQuery(sql);
+			statement.executeUpdate(sql);
+		      System.out.println("Inserted records into the table..."+sql);
 		} catch (Exception e) {
 		    e.printStackTrace();
 		} finally {
@@ -45,24 +45,26 @@ public class DatabaseHandler {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			try {
-				connection.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+//			try {
+//				connection.close();
+//			} catch (SQLException e) {
+//				e.printStackTrace();
+//			}
 		}
 		
 		ResultSet lastId = null;
 		int bookingNumber = 0;
+		Statement statement2 = null;
 		try {
-			connection = DriverManager.getConnection(databaseName);
-			connection.setAutoCommit(false);
-			statement = connection.createStatement();
-			String sql = "SELECT last_insert_rowid()";
-			lastId = statement.executeQuery(sql);
+//			connection = DriverManager.getConnection(databaseName);
+//			connection.setAutoCommit(false);
+			statement2 = connection.createStatement();
+			String sql = "SELECT last_insert_rowid() FROM bookings";
+			lastId = statement2.executeQuery(sql);
 			
 			lastId.next();
 			bookingNumber = lastId.getInt(1);
+		      System.out.println("last id..."+sql+"    "+bookingNumber);
 
 		} catch (Exception e) {
 		    e.printStackTrace();
@@ -73,41 +75,44 @@ public class DatabaseHandler {
 				e.printStackTrace();
 			}
 			try {
-				statement.close();
+				statement2.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 			try {
+				connection.commit();
 				connection.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 		}
-
-		for (Room r: booking.rooms) {
-			try {
-				connection = DriverManager.getConnection(databaseName);
-				connection.setAutoCommit(false);
-				statement = connection.createStatement();
-				
-				String sql = String.format("insert into room_booking_junction (room_id, booking_id) values (%d, %d)",
-						r.getId(), bookingNumber);
-				statement.executeQuery(sql);
-			} catch (Exception e) {
-			    e.printStackTrace();
-			} finally {
-				try {
-					statement.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				try {
-					connection.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+//
+//		Statement statement3 = null;
+//		for (Room r: booking.rooms) {
+//			try {
+//				connection = DriverManager.getConnection(databaseName);
+//				connection.setAutoCommit(false);
+//				statement3 = connection.createStatement();
+//				
+//				String sql = String.format("insert into room_booking_junction (room_id, booking_id) values (%d, %d)",
+//						r.getId(), bookingNumber);
+//				statement3.executeUpdate(sql);
+//			} catch (Exception e) {
+//			    e.printStackTrace();
+//			} finally {
+//				try {
+//					statement.close();
+//				} catch (SQLException e) {
+//					e.printStackTrace();
+//				}
+//				try {
+//					connection.commit();
+//					connection.close();
+//				} catch (SQLException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}
 		return bookingNumber;
 	}
 
@@ -245,8 +250,7 @@ public class DatabaseHandler {
 				roomId = roomData.getInt("id");
 				roomType = roomData.getString("type");
 				price = roomData.getInt("price");
-				//            booked = getBookedDates(roomId);
-				booked = new HashSet<>();
+				booked = getBookedDates(roomId);
 				rooms.add(new Room(roomId, roomType, price, booked));
 			}         
 		} catch (Exception e) {
@@ -326,57 +330,110 @@ public class DatabaseHandler {
 	}
 
 
-//	public HashSet<java.util.Date> getBookedDates(int roomId) throws Exception {
-//		String sql = String.format("select (bookings.checkin, bookings.checkout, bookings.canceled) "
-//				+ "from room_booking_junction inner join bookings on bookings.id=room_booking_junction.booking_id "
-//				+ "where room_id=%d;", roomId);
-//		ResultSet dateRecords = select(sql);
-//		HashSet<java.util.Date> dates = new HashSet<>();
-//		while (dateRecords.next()) {
-//			if (!dateRecords.getBoolean("canceled")) {
-//				try {
-//					java.util.Date checkin = formatter.parse(dateRecords.getString("checkin"));
-//					java.util.Date checkout = formatter.parse(dateRecords.getString("checkout"));
-//					Calendar cal = Calendar.getInstance();
-//					cal.setTime(checkin);
-//					while (cal.getTime().before(checkout)) {
-//						dates.add(cal.getTime());
-//						cal.add(Calendar.DATE, 1);
-//					}
-//				} catch (ParseException e) {
-//					System.out.println(e.getMessage());
-//				}
-//			}
-//		}
-//		dateRecords.close();
-//		statement.close();
-//		connection.close();
-//		return dates;
-//	}
+	public HashSet<java.util.Date> getBookedDates(int roomId) throws Exception {
+		Connection connection = null;
+		Statement statement = null;
+		ResultSet dateRecords = null;
+		HashSet<java.util.Date> dates = new HashSet<>();
+		try {
+			connection = DriverManager.getConnection(databaseName);
+			connection.setAutoCommit(false);
+			statement = connection.createStatement();
+			String sql = String.format("select * "
+					+ "from room_booking_junction inner join bookings on bookings.id=room_booking_junction.booking_id "
+					+ "where room_id=%d;", roomId);
+			dateRecords = statement.executeQuery(sql);
+			dates = new HashSet<>();
+			while (dateRecords.next()) {
+				if (!dateRecords.getBoolean("canceled")) {
+					try {
+						java.util.Date checkin = formatter.parse(dateRecords.getString("checkin"));
+						java.util.Date checkout = formatter.parse(dateRecords.getString("checkout"));
+						Calendar cal = Calendar.getInstance();
+						cal.setTime(checkin);
+						while (cal.getTime().before(checkout)) {
+							dates.add(cal.getTime());
+							cal.add(Calendar.DATE, 1);
+						}
+					} catch (ParseException e) {
+						System.out.println(e.getMessage());
+					}
+				}
+			}
+	
+			
+		} catch (Exception e) {
+		    e.printStackTrace();
+		} finally {
+			try {
+				dateRecords.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			try {
+				statement.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			try {
+				connection.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return dates;
+	}
 
 
-//	public ArrayList<BookingPricingRule> getCalendarRules() throws Exception {
-//		String sql = "select * from calendar_rules";
-//		Float rate;
-//		HashSet<java.util.Date> dates;
-//		ResultSet ruleData = select(sql);
-//		HashMap<Float, HashSet<java.util.Date>> tempRules = new HashMap<>();
-//		while (ruleData.next()) {
-//			rate = ruleData.getFloat("rate");
-//			dates = tempRules.get(rate);
-//			if (dates == null) dates = new HashSet<>();
-//			dates.add(formatter.parse(ruleData.getString("date")));
-//			tempRules.put(rate, dates);
-//		}
-//		ArrayList<BookingPricingRule> rules = new ArrayList<>();
-//		for (Map.Entry<Float, HashSet<java.util.Date>> e: tempRules.entrySet()) {
-//			rules.add(new BookingPricingRule(e.getKey(), new ArrayList<>(e.getValue())));
-//		}
-//		ruleData.close();
-//		statement.close();
-//		connection.close();
-//		return rules;
-//	}
+	public ArrayList<BookingPricingRule> getCalendarRules() throws Exception {
+		Connection connection = null;
+		Statement statement = null;
+		ResultSet ruleData = null;
+
+		Float rate;
+		HashSet<java.util.Date> dates;
+		HashMap<Float, HashSet<java.util.Date>> tempRules = new HashMap<>();
+		ArrayList<BookingPricingRule> rules = new ArrayList<>();
+		try {
+			connection = DriverManager.getConnection(databaseName);
+			connection.setAutoCommit(false);
+			statement = connection.createStatement();
+			String sql = "select * from calendar_rules";
+			ruleData = statement.executeQuery(sql);
+			dates = new HashSet<>();
+			while (ruleData.next()) {
+				rate = ruleData.getFloat("rate");
+				dates = tempRules.get(rate);
+				if (dates == null) dates = new HashSet<>();
+				dates.add(formatter.parse(ruleData.getString("date")));
+				tempRules.put(rate, dates);
+			}
+			for (Map.Entry<Float, HashSet<java.util.Date>> e: tempRules.entrySet()) {
+				rules.add(new BookingPricingRule(e.getKey(), new ArrayList<>(e.getValue())));
+			}
+	
+		} catch (Exception e) {
+		    e.printStackTrace();
+		} finally {
+			try {
+				ruleData.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			try {
+				statement.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			try {
+				connection.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return rules;
+	}
 
 	public void setDayRate(Date date, float rate){}
 
