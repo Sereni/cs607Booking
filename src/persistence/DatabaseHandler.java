@@ -279,7 +279,7 @@ public class DatabaseHandler {
 		return rooms;
 	}
 
-	// todo we'll need some kind of cleanup, when the booking date passes, rooms should free up
+	// TODOL we'll need some kind of cleanup, when the booking date passes, rooms should free up
 
 	/**
 	 * Look up the room by its number.
@@ -434,6 +434,55 @@ public class DatabaseHandler {
 			}
 		}
 		return rules;
+	}
+
+
+	public ArrayList<ExtraService> getActiveServices() {
+		Connection connection = null;
+		Statement statement = null;
+		ResultSet serviceData = null;
+		ArrayList<ExtraService> services = new ArrayList<>();
+		try {
+			connection = DriverManager.getConnection(databaseName);
+			connection.setAutoCommit(false);
+			statement = connection.createStatement();
+			String sql = String.format("select * from services where active=1");
+
+			serviceData = statement.executeQuery(sql); 
+			
+			int serviceId;
+			String serviceName;
+			int price;
+
+			while (serviceData.next()) {
+				serviceId = serviceData.getInt("id");
+				serviceName = serviceData.getString("name");
+				price = serviceData.getInt("price");
+				services.add(new ExtraService(serviceId, serviceName, price));
+			}         
+		} catch (Exception e) {
+		    System.out.println("ERROR CREATING TABLE ARRAY");
+		    e.printStackTrace();
+		    return null;
+		} finally {
+			try {
+				serviceData.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			try {
+				statement.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			try {
+				connection.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		return services;
 	}
 
 	public void setDayRate(Date date, float rate){}

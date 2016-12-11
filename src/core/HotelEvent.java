@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 /**
  * abstract model for events in a hotel
@@ -21,6 +22,7 @@ public abstract class HotelEvent {
 	public String userEmail;
 	public ArrayList<Room> rooms;
 	public int payment;
+	public HashMap<ExtraService, Integer> services = new HashMap<>(); //services with amount of that
 	
 	public HotelEvent() {
 		rooms = new ArrayList<>();

@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 import persistence.DatabaseHandler;
 
@@ -18,6 +19,7 @@ import persistence.DatabaseHandler;
  */
 public class BookingEvent extends HotelEvent{
 	private ArrayList<Room> availableRooms;
+	private ArrayList<ExtraService> allServices; 
 	
 	public BookingEvent() {
 	}
@@ -34,11 +36,12 @@ public class BookingEvent extends HotelEvent{
 	 * 4. show available rooms
 	 * 5. ask to choose one or more rooms from user
 	 * 6. block room
-	 * 7. ask user email
-	 * 8. calculate payment
-	 * 9. show summary and ask confirmation from user
-	 * 10. payment
-	 * 11. insert this booking in database
+	 * 7. ask for extra services
+	 * 8. ask user email
+	 * 9. calculate payment
+	 * 10. show summary and ask confirmation from user
+	 * 11. payment
+	 * 12. insert this booking in database
 	 */
 	@Override
 	protected void doEvent() {
@@ -50,6 +53,7 @@ public class BookingEvent extends HotelEvent{
 		for ( Room room : rooms ) {
 			blockRoom( room );
 		}
+		askForExtraServices();
 		userEmail = askUserEmail();
 		payment = Calculator.getInstance().getPayment(this);
 		
@@ -57,8 +61,7 @@ public class BookingEvent extends HotelEvent{
 			BankApi.pay(payment);
 		}
 
-		new DatabaseHandler().makeBooking(this);
-		
+		new DatabaseHandler().makeBooking(this);	
 	}
 	
 	private void askBookingDates() {
@@ -124,7 +127,38 @@ public class BookingEvent extends HotelEvent{
 			System.out.println(room);
 		}
 	}
+
+	private void askForExtraServices() {
+		System.out.println("You can add these services to your booking too\n"
+				+ " please enter number of each services do you want with x number of date/time. (e.g. 1x2,2x5 means service1 for 2 times and service2 for 5 times)");
+		
+		allServices = new DatabaseHandler().getActiveServices();
+		for ( ExtraService service : allServices ) {
+			System.out.println(service);
+		}
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		String selectedServices = "";
+		//TODO:handle exception
+		try {
+			selectedServices = in.readLine(); //read string of ids and amounts
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String[] idsAmountStr = selectedServices.split(","); //split id of each room
+		// cast id from string to int and find the room
+		for(int i = 0; i < idsAmountStr.length; i++) {
+			String[] detail = idsAmountStr[i].split("x");
+			//TODO:handle cast exception
+			addService(findServiceBetweenServices(Integer.parseInt(detail[0])), Integer.parseInt(detail[1]));
+		}
+		
+	}
 	
+	private void addService(ExtraService service, int amount) {
+		services.put(service, amount);
+		payment += service.getPrice() * amount;
+	}
 	// e.g. 123,125 equals user wants rooms with room id 123 and 125
 	private void askForRooms() {
 		System.out.println("Please enter id of rooms that you like to book: (you can enter multiple room by ,)");
@@ -151,6 +185,14 @@ public class BookingEvent extends HotelEvent{
 				return room;
 		return null; //TODO: better way
 	}
+
+	
+	private ExtraService findServiceBetweenServices(int id) {
+		for ( ExtraService service : allServices )
+			if ( service.getId() == id )
+				return service;
+		return null; //TODO: better way
+	}
 	
 	private void blockRoom(Room room){
 		for(Date d = checkIn; d.compareTo(checkOut) < 0; d = new Date(d.getTime() + (1000*60*60*24))) {
@@ -159,10 +201,14 @@ public class BookingEvent extends HotelEvent{
 	}
 	
 	protected boolean userConfirmation() {
-		System.out.println("You wan to book these rooms:");
+		System.out.println("\nYou want to book these room(s) ans service(s):");
 		for ( Room room:rooms ) {
 			System.out.println(room);
 		}
+		for (HashMap.Entry<ExtraService, Integer> entry : services.entrySet()){
+		    System.out.println(entry.getKey() + " for " + entry.getValue() +" times.");
+		}
+		
 		System.out.println("Payment: "+payment+"$");
 		System.out.println("Do you confirm? (y/n)");
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
