@@ -24,50 +24,50 @@ public class DatabaseHandler {
 	 * @throws Exception 
 	 */
 	public int makeBooking(BookingEvent booking) {
-		
+
 		Connection connection = null;
 		Statement statement = null;
 		try {
 			connection = DriverManager.getConnection(databaseName);
 			connection.setAutoCommit(false);
 			statement = connection.createStatement();
-			
+
 			String sql = "insert into bookings (email, checkin, checkout, price) " +
 					String.format("values ('%s', '%s', '%s', %d);", booking.userEmail, formatter.format(booking.checkIn),
 							formatter.format(booking.checkOut), booking.payment);
 			statement.executeUpdate(sql);
-//		      System.out.println("Inserted records into the table..."+sql);
+			//		      System.out.println("Inserted records into the table..."+sql);
 		} catch (Exception e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		} finally {
 			try {
 				statement.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-//			try {
-//				connection.close();
-//			} catch (SQLException e) {
-//				e.printStackTrace();
-//			}
+			//			try {
+			//				connection.close();
+			//			} catch (SQLException e) {
+			//				e.printStackTrace();
+			//			}
 		}
-		
+
 		ResultSet lastId = null;
 		int bookingNumber = 0;
 		Statement statement2 = null;
 		try {
-//			connection = DriverManager.getConnection(databaseName);
-//			connection.setAutoCommit(false);
+			//			connection = DriverManager.getConnection(databaseName);
+			//			connection.setAutoCommit(false);
 			statement2 = connection.createStatement();
 			String sql = "SELECT last_insert_rowid() FROM bookings";
 			lastId = statement2.executeQuery(sql);
-			
+
 			lastId.next();
 			bookingNumber = lastId.getInt(1);
-//		      System.out.println("last id..."+sql+"    "+bookingNumber);
+			//		      System.out.println("last id..."+sql+"    "+bookingNumber);
 
 		} catch (Exception e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		} finally {
 			try {
 				lastId.close();
@@ -93,15 +93,43 @@ public class DatabaseHandler {
 				connection = DriverManager.getConnection(databaseName);
 				connection.setAutoCommit(false);
 				statement3 = connection.createStatement();
-				
+
 				String sql = String.format("insert into room_booking_junction (room_id, booking_id) values (%d, %d)",
 						r.getId(), bookingNumber);
 				statement3.executeUpdate(sql);
 			} catch (Exception e) {
-			    e.printStackTrace();
+				e.printStackTrace();
 			} finally {
 				try {
 					statement3.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				try {
+					connection.commit();
+					connection.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+
+		Statement statement4 = null;
+		for (HashMap.Entry<ExtraService, Integer> entry : booking.services.entrySet()){
+			try {
+				connection = DriverManager.getConnection(databaseName);
+				connection.setAutoCommit(false);
+				statement4 = connection.createStatement();
+
+				String sql = String.format("insert into service_booking_junction (service_id, booking_id, amount) values (%d, %d, %d)",
+						entry.getKey().getId(), bookingNumber, entry.getValue());
+				statement4.executeUpdate(sql);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					statement4.close();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -120,34 +148,34 @@ public class DatabaseHandler {
 		Connection connection = null;
 		Statement statement = null;
 		ResultSet results = null;
-		
+
 		int bookingId = 0;
 		String email = null;
 		Date checkin = null;
 		Date checkout = null;
 		int price = 0;
 		int refund = 0;
-		
+
 		try {
 			connection = DriverManager.getConnection(databaseName);
 			connection.setAutoCommit(false);
 			statement = connection.createStatement();
-			
+
 			String sql = String.format("select * from bookings where id=%d;", number);
 			results = statement.executeQuery(sql);
 			if (!results.next()) {
 				throw new RecordNotFoundException();
 			}
-			
+
 			bookingId = results.getInt("id");
 			email = results.getString("email");
 			checkin = (Date)formatter.parse(results.getString("checkin"));
 			checkout = (Date)formatter.parse(results.getString("checkout"));
 			price = results.getInt("price");
 			refund = results.getInt("refund");
-			
+
 		} catch (Exception e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		} finally {
 			try {
 				results.close();
@@ -165,22 +193,22 @@ public class DatabaseHandler {
 				e.printStackTrace();
 			}
 		}
-		
+
 		ArrayList<Room> rooms = new ArrayList<>();
 		try {
 			connection = DriverManager.getConnection(databaseName);
 			connection.setAutoCommit(false);
 			statement = connection.createStatement();
-			
+
 			String sql = String.format("select room_id from room_booking_junction where booking_id=%d", bookingId);
 			results = statement.executeQuery(sql);
-			
+
 			while (results.next()) {
 				rooms.add(getRoom(results.getInt("room_id")));
 			}
-			
+
 		} catch (Exception e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		} finally {
 			try {
 				results.close();
@@ -198,29 +226,68 @@ public class DatabaseHandler {
 				e.printStackTrace();
 			}
 		}
-		CancelEvent cancel = new CancelEvent(bookingId, checkin, checkout, email, rooms, price, refund);
-		
-		return cancel;
-	}
 
-	public void cancelBooking(CancelEvent cancel) throws SQLException {
-		Connection connection = null;
-		Statement statement = null;
+		HashMap<ExtraService, Integer> services = new HashMap<>();
 		try {
 			connection = DriverManager.getConnection(databaseName);
 			connection.setAutoCommit(false);
 			statement = connection.createStatement();
-			String sql = String.format("update bookings set canceled=1 and refund=%d where id=%d;", cancel.getRefund(), cancel.id);
-			statement.executeUpdate(sql);
+
+			String sql = String.format("select * from service_booking_junction where booking_id=%d", bookingId);
+			results = statement.executeQuery(sql);
+
+			while (results.next()) {
+				services.put(getService(results.getInt("service_id")), results.getInt("amount"));
+			}
+
 		} catch (Exception e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		} finally {
+			try {
+				results.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 			try {
 				statement.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 			try {
+				connection.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		CancelEvent cancel = new CancelEvent(bookingId, checkin, checkout, email, rooms, services, price, refund);
+
+		return cancel;
+	}
+
+	public void cancelBooking(CancelEvent cancel) throws SQLException {
+		Connection connection = null;
+		PreparedStatement update = null;
+		try {
+
+			connection = DriverManager.getConnection(databaseName);
+			connection.setAutoCommit(false);
+			update = connection.prepareStatement
+					("UPDATE bookings SET canceled = ?, refund = ? WHERE id = ?");
+
+			update.setInt(1, 1);
+			update.setInt(2, cancel.getRefund());
+			update.setInt(3, cancel.id);
+			update.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				update.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			try {
+				connection.commit();
 				connection.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -241,7 +308,7 @@ public class DatabaseHandler {
 			String sql = String.format("select * from rooms where type='%s'", type);
 
 			roomData = statement.executeQuery(sql); 
-			
+
 			Set<java.util.Date> booked;
 			int roomId;
 			String roomType;
@@ -255,9 +322,9 @@ public class DatabaseHandler {
 				rooms.add(new Room(roomId, roomType, price, booked));
 			}         
 		} catch (Exception e) {
-		    System.out.println("ERROR CREATING TABLE ARRAY");
-		    e.printStackTrace();
-		    return null;
+			System.out.println("ERROR CREATING TABLE ARRAY");
+			e.printStackTrace();
+			return null;
 		} finally {
 			try {
 				roomData.close();
@@ -274,7 +341,7 @@ public class DatabaseHandler {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			
+
 		}
 		return rooms;
 	}
@@ -301,14 +368,14 @@ public class DatabaseHandler {
 			if (!roomData.next()) {
 				throw new RecordNotFoundException();
 			}
-			
+
 			room = new Room(id,
 					roomData.getString("type"),
 					roomData.getInt("price"),
 					new HashSet<java.util.Date>());
-			
+
 		} catch (Exception e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		} finally {
 			try {
 				roomData.close();
@@ -326,10 +393,51 @@ public class DatabaseHandler {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return room;
 	}
 
+	public ExtraService getService(int id) throws Exception {
+		Connection connection = null;
+		Statement statement = null;
+		ResultSet serviceData = null;
+		ExtraService service = null;
+		try {
+			connection = DriverManager.getConnection(databaseName);
+			connection.setAutoCommit(false);
+			statement = connection.createStatement();
+			String sql = String.format("select * from services where id=%d", id);
+			serviceData = statement.executeQuery(sql);
+			if (!serviceData.next()) {
+				throw new RecordNotFoundException();
+			}
+
+			service = new ExtraService(id,
+					serviceData.getString("name"),
+					serviceData.getInt("price"));
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				serviceData.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			try {
+				statement.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			try {
+				connection.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return service;
+	}
 
 	public HashSet<java.util.Date> getBookedDates(int roomId) throws Exception {
 		Connection connection = null;
@@ -361,10 +469,10 @@ public class DatabaseHandler {
 					}
 				}
 			}
-	
-			
+
+
 		} catch (Exception e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		} finally {
 			try {
 				dateRecords.close();
@@ -382,12 +490,12 @@ public class DatabaseHandler {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return dates;
 	}
 
 
-	public ArrayList<BookingPricingRule> getCalendarRules() throws Exception {
+	public ArrayList<BookingPricingRule> getPricingRules() throws Exception {
 		Connection connection = null;
 		Statement statement = null;
 		ResultSet ruleData = null;
@@ -413,9 +521,52 @@ public class DatabaseHandler {
 			for (Map.Entry<Float, HashSet<java.util.Date>> e: tempRules.entrySet()) {
 				rules.add(new BookingPricingRule(e.getKey(), new ArrayList<>(e.getValue())));
 			}
-	
+
 		} catch (Exception e) {
-		    e.printStackTrace();
+			e.printStackTrace();
+		} finally {
+			try {
+				ruleData.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			try {
+				statement.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			try {
+				connection.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return rules;
+	}
+
+
+	public ArrayList<CancellationPricingRules> getCancelingRules() throws Exception {
+		Connection connection = null;
+		Statement statement = null;
+		ResultSet ruleData = null;
+
+		Float rate;
+		int lowBound, upBound;
+		ArrayList<CancellationPricingRules> rules = new ArrayList<>();
+		try {
+			connection = DriverManager.getConnection(databaseName);
+			connection.setAutoCommit(false);
+			statement = connection.createStatement();
+			String sql = "select * from cancel_rules";
+			ruleData = statement.executeQuery(sql);
+			while (ruleData.next()) {
+				rate = ruleData.getFloat("rate");
+				lowBound = ruleData.getInt("lowbound");
+				upBound = ruleData.getInt("upbound");
+				rules.add(new CancellationPricingRules(rate,lowBound,upBound));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		} finally {
 			try {
 				ruleData.close();
@@ -449,7 +600,7 @@ public class DatabaseHandler {
 			String sql = String.format("select * from services where active=1");
 
 			serviceData = statement.executeQuery(sql); 
-			
+
 			int serviceId;
 			String serviceName;
 			int price;
@@ -461,9 +612,9 @@ public class DatabaseHandler {
 				services.add(new ExtraService(serviceId, serviceName, price));
 			}         
 		} catch (Exception e) {
-		    System.out.println("ERROR CREATING TABLE ARRAY");
-		    e.printStackTrace();
-		    return null;
+			System.out.println("ERROR CREATING TABLE ARRAY");
+			e.printStackTrace();
+			return null;
 		} finally {
 			try {
 				serviceData.close();
@@ -480,7 +631,7 @@ public class DatabaseHandler {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			
+
 		}
 		return services;
 	}

@@ -24,8 +24,9 @@ public class BookingEvent extends HotelEvent{
 	public BookingEvent() {
 	}
 	
-	public BookingEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, int payment) {
-		super(id, checkIn, checkOut, userEmail, rooms, payment);
+	public BookingEvent(int id, Date checkIn, Date checkOut, String userEmail,
+			ArrayList<Room> rooms, HashMap<ExtraService, Integer> services, int payment) {
+		super(id, checkIn, checkOut, userEmail, rooms, services, payment);
 	}
 
 	/**
@@ -150,15 +151,11 @@ public class BookingEvent extends HotelEvent{
 		for(int i = 0; i < idsAmountStr.length; i++) {
 			String[] detail = idsAmountStr[i].split("x");
 			//TODO:handle cast exception
-			addService(findServiceBetweenServices(Integer.parseInt(detail[0])), Integer.parseInt(detail[1]));
+			services.put(findServiceBetweenServices(Integer.parseInt(detail[0])), Integer.parseInt(detail[1]));
 		}
 		
 	}
 	
-	private void addService(ExtraService service, int amount) {
-		services.put(service, amount);
-		payment += service.getPrice() * amount;
-	}
 	// e.g. 123,125 equals user wants rooms with room id 123 and 125
 	private void askForRooms() {
 		System.out.println("Please enter id of rooms that you like to book: (you can enter multiple room by ,)");

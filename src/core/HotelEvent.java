@@ -28,13 +28,15 @@ public abstract class HotelEvent {
 		rooms = new ArrayList<>();
 	}
 	
-	public HotelEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, int payment) {
+	public HotelEvent(int id, Date checkIn, Date checkOut, String userEmail,
+			ArrayList<Room> rooms, HashMap<ExtraService, Integer> services, int payment) {
 		this();
 		this.id = id;
 		this.checkIn = checkIn;
 		this.checkOut = checkOut;
 		this.userEmail = userEmail;
 		this.rooms = rooms;
+		this.services = services;
 		this.payment = payment;
 	}
 

@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 import persistence.DatabaseHandler;
 
@@ -22,8 +23,9 @@ public class CancelEvent extends HotelEvent{
 		this.id = id;
 	}
 
-	public CancelEvent(int id, Date checkIn, Date checkOut, String userEmail, ArrayList<Room> rooms, int payment, int refund) {
-		super(id, checkIn, checkOut, userEmail, rooms, payment);
+	public CancelEvent(int id, Date checkIn, Date checkOut, String userEmail,
+			ArrayList<Room> rooms, HashMap<ExtraService, Integer> services, int payment, int refund) {
+		super(id, checkIn, checkOut, userEmail, rooms, services, payment);
 		this.refund = refund;
 	}
 
@@ -43,7 +45,7 @@ public class CancelEvent extends HotelEvent{
 			System.out.println("You entered wrong email, please try again");
 		}
 	
-		refund = Calculator.getInstance().getPayment(this);
+		refund = Calculator.getInstance().getRefund(this);
 		
 		if ( userConfirmation() ) {
 			BankApi.refund(refund);
@@ -73,9 +75,12 @@ public class CancelEvent extends HotelEvent{
 
 	
 	protected boolean userConfirmation() {
-		System.out.println("You want to cancel booking with id "+id+" and contains these rooms:");
+		System.out.println("You want to cancel booking with id "+id+" and contains these room(s) and service(s):");
 		for ( Room room:rooms ) {
 			System.out.println(room);
+		}
+		for (HashMap.Entry<ExtraService, Integer> entry : services.entrySet()){
+		    System.out.println(entry.getKey() + " for " + entry.getValue() +" times.");
 		}
 		System.out.println("Payment: (what you paid before) "+payment+"$");
 		System.out.println("Refund: (what we will pay you back if u cancel)"+refund+"$");

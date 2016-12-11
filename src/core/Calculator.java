@@ -2,6 +2,9 @@ package core;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+
+import persistence.DatabaseHandler;
 
 
 /**
@@ -20,12 +23,20 @@ public class Calculator {
 		initCancellationPricingRules();
 	}
 	private void initBookingPricingRules() {
-		//TODO: read from db
-		bookingPricingRules = new ArrayList<>();
+		try {
+			bookingPricingRules = new DatabaseHandler().getPricingRules();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	private void initCancellationPricingRules() {
-		//TODO: read from db
-		cancellationPricingRules = new ArrayList<>();
+		try {
+			cancellationPricingRules = new DatabaseHandler().getCancelingRules();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public static synchronized Calculator getInstance() {
@@ -34,8 +45,14 @@ public class Calculator {
 		return instance;
 	}
 
+	/**
+	 * first calculate price of rooms based on number of nights and pricing rules
+	 * then add price of services
+	 * @param booking
+	 * @return
+	 */
 	public int getPayment(BookingEvent booking) {
-		double payment = 0;
+		int payment = 0;
 		double multiplier=1;
 		for (Date date = booking.checkIn; date.compareTo(booking.checkOut)<0; date = new Date(date.getTime() + (1000 * 60 * 60 * 24))) {
 				for ( Room room : booking.rooms ) {
@@ -46,19 +63,42 @@ public class Calculator {
 					if ( multiplier != 1 ) //we want to apply only one rule
 							break;
 				}
-				
 		}
-		return (int) payment;
+		payment += getPriceForServices(booking);
+		return payment;
 	}
 
-
-	public int getPayment(CancelEvent cancel) {
-		double payment = 0;
-		double multiplier;
-		for ( HotelPricingRule rule : cancellationPricingRules ) {
-			multiplier = rule.getMultiplier(cancel.checkIn);
-			return (int) (multiplier*payment);
+	/**
+	 * as we return back whole amount of price of services so first subtract that amount and multiply cancel rules to payment related to rooms
+	 * after that refund both of them
+	 * (all happens if check in is before today)
+	 * @param cancel
+	 * @return
+	 */
+	public int getRefund(CancelEvent cancel) {
+		Date today = new Date();
+		System.out.println(""+today.compareTo(cancel.checkIn)+"days");
+		if ( today.compareTo(cancel.checkIn) < 0 ) {
+			int servicesPrice = getPriceForServices(cancel);
+			int roomsPrice = cancel.payment - servicesPrice;
+			int refundOfRooms = roomsPrice;
+			double multiplier;
+			for ( HotelPricingRule rule : cancellationPricingRules ) {
+				multiplier = rule.getMultiplier(cancel.checkIn);
+				refundOfRooms = (int) (multiplier*refundOfRooms);
+				if ( multiplier != 1 )
+					break;
+			}
+			return refundOfRooms+servicesPrice;
 		}
-		return 0; //no rules for cancellation
+		return 0; //no refund for booking that passed
+	}
+	
+	private int getPriceForServices(HotelEvent event) {
+		int payment = 0;
+		for (HashMap.Entry<ExtraService, Integer> entry : event.services.entrySet()){
+			payment += entry.getKey().getPrice() * entry.getValue();
+		}
+		return payment;
 	}
 }
