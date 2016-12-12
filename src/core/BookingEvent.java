@@ -7,8 +7,12 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import persistence.DatabaseHandler;
 
@@ -54,6 +58,8 @@ public class BookingEvent extends HotelEvent{
 		for ( Room room : rooms ) {
 			blockRoom( room );
 		}
+		
+		//after blocking rooms it should not take more than 15 mins!
 		askForExtraServices();
 		userEmail = askUserEmail();
 		payment = Calculator.getInstance().getPayment(this);
@@ -61,6 +67,7 @@ public class BookingEvent extends HotelEvent{
 		if ( userConfirmation() ) {
 			BankApi.pay(payment);
 		}
+		/////until here
 
 		new DatabaseHandler().makeBooking(this);	
 	}

@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-
 /**
  * abstract model for events in a hotel
  * each event contains id, checkIn, checkOut, user email and list of rooms
@@ -14,7 +13,7 @@ import java.util.HashMap;
  * @author Aida
  *
  */
-public abstract class HotelEvent {
+public abstract class HotelEvent implements Runnable {
 
 	public int id;
 	public Date checkIn;
@@ -41,9 +40,9 @@ public abstract class HotelEvent {
 	}
 
 	/**
-	 * start event
+	 * run event
 	 */
-	public void start() {
+	public void run() {
 		doEvent();
 	}
 

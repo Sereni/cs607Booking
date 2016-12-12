@@ -3,6 +3,14 @@ package core;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import persistence.DatabaseHandler;
 
 public class Runner {
@@ -11,15 +19,20 @@ public class Runner {
 		BOOKING, CANCELING
 	}
 	
-	public static void main(String[] args) {
-//		factoryMethod(HotelEventType.BOOKING);		
-		factoryMethod(HotelEventType.CANCELING);
+	public static void main(String[] args) {	
+		try {
+			factoryMethod(HotelEventType.BOOKING);	
+			factoryMethod(HotelEventType.CANCELING);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
-	private static void factoryMethod(HotelEventType type) {
+	private static void factoryMethod(HotelEventType type) throws InterruptedException {
 		System.out.println(type);
 		if ( type == HotelEventType.BOOKING ) {
-			new BookingEvent().start();
+			 new Thread ( new BookingEvent() ).start();
 		}
 		if ( type == HotelEventType.CANCELING ) {
 			int id = 0;
@@ -34,12 +47,11 @@ public class Runner {
 			}
 			//retrieve event
 			try {
-				CancelEvent event = new DatabaseHandler().getCancelingBooking(id);
-				event.start();
+				CancelEvent cancelEvent = new DatabaseHandler().getCancelingBooking(id);
+				 new Thread (cancelEvent).start();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		System.out.println("---------------------------");
 	}
 }
