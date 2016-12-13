@@ -1,9 +1,10 @@
-package core;
+package controller;
 
 import java.util.ArrayList;
 import java.util.Date;
 
-import persistence.DatabaseHandler;
+import model.Room;
+import model.RoomType;
 
 /**
  * This class is for checking availability and find available rooms

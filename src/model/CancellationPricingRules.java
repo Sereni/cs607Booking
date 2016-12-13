@@ -1,4 +1,4 @@
-package core;
+package model;
 
 import java.util.Date;
 
@@ -19,7 +19,6 @@ public class CancellationPricingRules extends HotelPricingRule {
 	public float getMultiplier(Date date) {
 		Date today = new Date();
 		int subtraction = (int) ((date.getTime()-today.getTime())/(1000*60*60*24));
-		System.out.println(subtraction+", "+ lowBoundary+", "+topBoundary);
 		if ( subtraction >= lowBoundary && subtraction <= topBoundary )
 			return multiplier;
 		return 1;

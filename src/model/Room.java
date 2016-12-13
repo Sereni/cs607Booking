@@ -1,11 +1,8 @@
-package core;
+package model;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-enum RoomType {
-	Single, Double, Studio, Suite
-	};
 
 public class Room {
 

@@ -1,10 +1,17 @@
-package core;
+package controller;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import persistence.DatabaseHandler;
+import model.BookingEventModel;
+import model.BookingPricingRule;
+import model.CancellationPricingRules;
+import model.CancellationEventModel;
+import model.ExtraService;
+import model.HotelEventModel;
+import model.HotelPricingRule;
+import model.Room;
 
 
 /**
@@ -51,7 +58,7 @@ public class Calculator {
 	 * @param booking
 	 * @return
 	 */
-	public int getPayment(BookingEvent booking) {
+	public int getPayment(BookingEventModel booking) {
 		int payment = 0;
 		double multiplier=1;
 		for (Date date = booking.checkIn; date.compareTo(booking.checkOut)<0; date = new Date(date.getTime() + (1000 * 60 * 60 * 24))) {
@@ -75,9 +82,8 @@ public class Calculator {
 	 * @param cancel
 	 * @return
 	 */
-	public int getRefund(CancelEvent cancel) {
+	public int getRefund(CancellationEventModel cancel) {
 		Date today = new Date();
-		System.out.println(""+today.compareTo(cancel.checkIn)+"days");
 		if ( today.compareTo(cancel.checkIn) < 0 ) {
 			int servicesPrice = getPriceForServices(cancel);
 			int roomsPrice = cancel.payment - servicesPrice;
@@ -94,7 +100,7 @@ public class Calculator {
 		return 0; //no refund for booking that passed
 	}
 	
-	private int getPriceForServices(HotelEvent event) {
+	private int getPriceForServices(HotelEventModel event) {
 		int payment = 0;
 		for (HashMap.Entry<ExtraService, Integer> entry : event.services.entrySet()){
 			payment += entry.getKey().getPrice() * entry.getValue();

@@ -1,5 +1,11 @@
-package persistence;
-import core.*;
+package controller;
+import model.BookingEventModel;
+import model.BookingPricingRule;
+import model.CancellationPricingRules;
+import model.CancellationEventModel;
+import model.ExtraService;
+import model.Room;
+
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -23,7 +29,7 @@ public class DatabaseHandler {
 	 * Creates a database entry from a BookingEvent object. Returns booking number.
 	 * @throws Exception 
 	 */
-	public int makeBooking(BookingEvent booking) {
+	public int makeBooking(BookingEventModel booking) {
 
 		Connection connection = null;
 		Statement statement = null;
@@ -144,7 +150,7 @@ public class DatabaseHandler {
 		return bookingNumber;
 	}
 
-	public CancelEvent getCancelingBooking(int number) throws Exception {
+	public CancellationEventModel getCancelingBooking(int number) throws Exception {
 		Connection connection = null;
 		Statement statement = null;
 		ResultSet results = null;
@@ -259,12 +265,12 @@ public class DatabaseHandler {
 				e.printStackTrace();
 			}
 		}
-		CancelEvent cancel = new CancelEvent(bookingId, checkin, checkout, email, rooms, services, price, refund);
+		CancellationEventModel cancel = new CancellationEventModel(bookingId, checkin, checkout, email, rooms, services, price, refund);
 
 		return cancel;
 	}
 
-	public void cancelBooking(CancelEvent cancel) throws SQLException {
+	public void cancelBooking(CancellationEventModel cancel) throws SQLException {
 		Connection connection = null;
 		PreparedStatement update = null;
 		try {
@@ -275,7 +281,7 @@ public class DatabaseHandler {
 					("UPDATE bookings SET canceled = ?, refund = ? WHERE id = ?");
 
 			update.setInt(1, 1);
-			update.setInt(2, cancel.getRefund());
+			update.setInt(2, cancel.refund);
 			update.setInt(3, cancel.id);
 			update.executeUpdate();
 		} catch (Exception e) {

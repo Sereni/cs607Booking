@@ -1,4 +1,4 @@
-package core;
+package view;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,32 +7,30 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-import persistence.DatabaseHandler;
+import controller.Availability;
+import controller.BankApi;
+import controller.Calculator;
+import controller.DatabaseHandler;
+import model.BookingEventModel;
+import model.ExtraService;
+import model.Room;
+import model.RoomType;
 
 /**
  * A kind of hotel event which related to booking process in a hotel
  * @author Aida
  *
  */
-public class BookingEvent extends HotelEvent{
+public class BookingEventProcess extends HotelEvent {
 	private ArrayList<Room> availableRooms;
 	private ArrayList<ExtraService> allServices; 
 	
-	public BookingEvent() {
+	public BookingEventProcess() {
+		model = new BookingEventModel();
 	}
 	
-	public BookingEvent(int id, Date checkIn, Date checkOut, String userEmail,
-			ArrayList<Room> rooms, HashMap<ExtraService, Integer> services, int payment) {
-		super(id, checkIn, checkOut, userEmail, rooms, services, payment);
-	}
-
 	/**
 	 * It's main flow of booking and it's based on requirements
 	 * 1. ask check in and check out dates from user
@@ -52,37 +50,37 @@ public class BookingEvent extends HotelEvent{
 	protected void doEvent() {
 		askBookingDates();
 		RoomType roomType = askRoomType();
-		availableRooms = Availability.findAvailableRooms(checkIn, checkOut, roomType);
+		availableRooms = Availability.findAvailableRooms(model.checkIn, model.checkOut, roomType);
 		showAvailableRooms();
 		askForRooms();
-		for ( Room room : rooms ) {
+		for ( Room room : model.rooms ) {
 			blockRoom( room );
 		}
 		
-		//after blocking rooms it should not take more than 15 mins!
+		//after blocking rooms until finishing payment it should not take more than 15 mins!
 		askForExtraServices();
-		userEmail = askUserEmail();
-		payment = Calculator.getInstance().getPayment(this);
+		model.userEmail = askUserEmail();
+		model.payment = Calculator.getInstance().getPayment((BookingEventModel) model);
 		
 		if ( userConfirmation() ) {
-			BankApi.pay(payment);
+			BankApi.pay(model.payment);
 		}
 		/////until here
 
-		new DatabaseHandler().makeBooking(this);	
+		new DatabaseHandler().makeBooking((BookingEventModel) model);	
 	}
 	
 	private void askBookingDates() {
 		System.out.println("Enter check-in date: (in this format dd/MM/yyyy)");
-		checkIn = readDate();
+		model.checkIn = readDate();
 		System.out.println("Enter check-out date: (in this format dd/MM/yyyy)");
-		checkOut = readDate();
+		model.checkOut = readDate();
 		
 		// check-in should be after today AND
 		// check-out should be at least one day after check-out
 		Date today = new Date();
-		if ( (checkIn.getTime() - today.getTime())/(1000*60*60*24) < 1 ||
-				(checkOut.getTime() - checkIn.getTime())/(1000*60*60*24) < 1 ) {
+		if ( (model.checkIn.getTime() - today.getTime())/(1000*60*60*24) < 1 ||
+				(model.checkOut.getTime() - model.checkIn.getTime())/(1000*60*60*24) < 1 ) {
 			System.out.println("Dates you entered is not correct, please try again");
 			askBookingDates();
 		}
@@ -138,7 +136,7 @@ public class BookingEvent extends HotelEvent{
 
 	private void askForExtraServices() {
 		System.out.println("You can add these services to your booking too\n"
-				+ " please enter number of each services do you want with x number of date/time. (e.g. 1x2,2x5 means service1 for 2 times and service2 for 5 times)");
+				+ "Please enter number of each services do you want with x number of date/time. (e.g. 1x2,2x5 means service1 for 2 times and service2 for 5 times)");
 		
 		allServices = new DatabaseHandler().getActiveServices();
 		for ( ExtraService service : allServices ) {
@@ -158,7 +156,7 @@ public class BookingEvent extends HotelEvent{
 		for(int i = 0; i < idsAmountStr.length; i++) {
 			String[] detail = idsAmountStr[i].split("x");
 			//TODO:handle cast exception
-			services.put(findServiceBetweenServices(Integer.parseInt(detail[0])), Integer.parseInt(detail[1]));
+			model.services.put(findServiceBetweenServices(Integer.parseInt(detail[0])), Integer.parseInt(detail[1]));
 		}
 		
 	}
@@ -178,7 +176,7 @@ public class BookingEvent extends HotelEvent{
 		String[] idsStr = selectedRoomsStr.split(","); //split id of each room
 		// cast id from string to int and find the room
 		for(int i = 0; i < idsStr.length; i++) {
-			rooms.add(findRoomBetweenAvailable(Integer.parseInt(idsStr[i])));
+			model.rooms.add(findRoomBetweenAvailable(Integer.parseInt(idsStr[i])));
 		}
 		
 	}
@@ -199,21 +197,16 @@ public class BookingEvent extends HotelEvent{
 	}
 	
 	private void blockRoom(Room room){
-		for(Date d = checkIn; d.compareTo(checkOut) < 0; d = new Date(d.getTime() + (1000*60*60*24))) {
+		for(Date d = model.checkIn; d.compareTo(model.checkOut) < 0; d = new Date(d.getTime() + (1000*60*60*24))) {
 			room.addBooked(d);
 		}
 	}
 	
 	protected boolean userConfirmation() {
 		System.out.println("\nYou want to book these room(s) ans service(s):");
-		for ( Room room:rooms ) {
-			System.out.println(room);
-		}
-		for (HashMap.Entry<ExtraService, Integer> entry : services.entrySet()){
-		    System.out.println(entry.getKey() + " for " + entry.getValue() +" times.");
-		}
-		
-		System.out.println("Payment: "+payment+"$");
+		showListOfRooms();
+		showListOfServices();
+		System.out.println("Payment: "+model.payment+"$");
 		System.out.println("Do you confirm? (y/n)");
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		try {
