@@ -1,4 +1,4 @@
-package view;
+package view.commandline;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,9 +17,9 @@ import model.Room;
  * @author Aida
  *
  */
-public class CancellationEvent extends HotelEvent{
+public class CancellationEventProcess extends HotelEventProcess{
 
-	public CancellationEvent() {
+	public CancellationEventProcess() {
 		int id = 0;
 		System.out.println("Enter id of booking");
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
@@ -80,11 +80,8 @@ public class CancellationEvent extends HotelEvent{
 	}
 	
 	protected boolean userConfirmation() {
-		System.out.println("You want to cancel booking with id "+model.id+" and contains these room(s) and service(s):");
-		showListOfRooms();
-		showListOfServices();
-		System.out.println("Payment: (what you paid before) "+model.payment+"$");
-		System.out.println("Refund: (what we will pay you back if u cancel)"+((CancellationEventModel)model).refund+"$");
+		System.out.println("You want to cancel booking with id "+model.id+":");
+		System.out.println(model);
 		System.out.println("Do you confirm? (y/n)");
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		try {

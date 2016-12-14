@@ -20,7 +20,16 @@ public class CancellationEventModel extends HotelEventModel {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
-		return null;
+		String str = "Cancellation:\n";
+		int nights = (int) (( checkOut.getTime() - checkIn.getTime() ) / ( 1000*60*60*24)) ;
+		for ( Room room : rooms ) {
+			str += (room+" for "+nights+" night(s).\n");
+		}
+		for (HashMap.Entry<ExtraService, Integer> entry : services.entrySet()){
+		    str += (entry.getKey() + " for " + entry.getValue() +" times.\n");
+		}
+		str += ("Payment: (what you paid before) "+payment+"$");
+		str += ("Refund: (what we will pay you back if u cancel) "+refund+"$");
+		return str;
 	}
 }

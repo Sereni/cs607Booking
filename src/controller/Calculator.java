@@ -60,16 +60,18 @@ public class Calculator {
 	 */
 	public int getPayment(BookingEventModel booking) {
 		int payment = 0;
-		double multiplier=1;
 		for (Date date = booking.checkIn; date.compareTo(booking.checkOut)<0; date = new Date(date.getTime() + (1000 * 60 * 60 * 24))) {
-				for ( Room room : booking.rooms ) {
-					for ( HotelPricingRule rule : bookingPricingRules ) {
-						multiplier = rule.getMultiplier(date);
-					}
-					payment += room.getBasePrice()*multiplier;
-					if ( multiplier != 1 ) //we want to apply only one rule
-							break;
-				}
+
+			double multiplier=1;
+			for ( HotelPricingRule rule : bookingPricingRules ) {
+				multiplier = rule.getMultiplier(date);
+				if ( multiplier != 1 ) //we want to apply only one rule
+					break;
+			}
+			for ( Room room : booking.rooms ) {
+				payment += room.getBasePrice()*multiplier;
+			}
+			System.out.println(payment+"");
 		}
 		payment += getPriceForServices(booking);
 		return payment;
@@ -99,7 +101,7 @@ public class Calculator {
 		}
 		return 0; //no refund for booking that passed
 	}
-	
+
 	private int getPriceForServices(HotelEventModel event) {
 		int payment = 0;
 		for (HashMap.Entry<ExtraService, Integer> entry : event.services.entrySet()){

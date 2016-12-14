@@ -1,4 +1,4 @@
-package view;
+package view.commandline;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,7 +23,7 @@ import model.RoomType;
  * @author Aida
  *
  */
-public class BookingEventProcess extends HotelEvent {
+public class BookingEventProcess extends HotelEventProcess {
 	private ArrayList<Room> availableRooms;
 	private ArrayList<ExtraService> allServices; 
 	
@@ -203,10 +203,8 @@ public class BookingEventProcess extends HotelEvent {
 	}
 	
 	protected boolean userConfirmation() {
-		System.out.println("\nYou want to book these room(s) ans service(s):");
-		showListOfRooms();
-		showListOfServices();
-		System.out.println("Payment: "+model.payment+"$");
+		System.out.println("\nYou want to book:");
+		System.out.println(model);
 		System.out.println("Do you confirm? (y/n)");
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		try {

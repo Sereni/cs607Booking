@@ -1,5 +1,8 @@
-import view.BookingEventProcess;
-import view.CancellationEvent;
+
+import view.commandline.BookingEventProcess;
+import view.commandline.CancellationEventProcess;
+import view.gui.EnterDetailsWindow;
+import view.gui.FirstWindow;
 
 public class Runner {
 	
@@ -8,13 +11,18 @@ public class Runner {
 	}
 	
 	public static void main(String[] args) {	
-		try {
+		java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new FirstWindow().setVisible(true);
+            }
+        });		
+//		try {
 //			factoryMethod(HotelEventType.BOOKING);	
-			factoryMethod(HotelEventType.CANCELING);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+////			factoryMethod(HotelEventType.CANCELING);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 	
 	private static void factoryMethod(HotelEventType type) throws InterruptedException {
@@ -24,7 +32,7 @@ public class Runner {
 		}
 		if ( type == HotelEventType.CANCELING ) {
 
-			 new Thread ( new CancellationEvent() ).start();
+			 new Thread ( new CancellationEventProcess() ).start();
 		}
 	}
 }

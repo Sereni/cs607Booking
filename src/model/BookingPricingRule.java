@@ -17,8 +17,11 @@ public class BookingPricingRule extends HotelPricingRule {
 	 */
 	@Override
 	public float getMultiplier(Date date) {
-		if ( dates.contains(date) )
-			return multiplier;
+		for ( Date ruleDate : dates ) {
+			int subtract = (int) Math.abs( (date.getTime() - ruleDate.getTime())/(1000*60*60*24) );
+			if ( subtract == 0 )
+				return multiplier;
+		}
 		return 1;
 	}
 }

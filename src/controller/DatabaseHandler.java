@@ -505,10 +505,7 @@ public class DatabaseHandler {
 		Connection connection = null;
 		Statement statement = null;
 		ResultSet ruleData = null;
-
-		Float rate;
-		HashSet<java.util.Date> dates;
-		HashMap<Float, HashSet<java.util.Date>> tempRules = new HashMap<>();
+		
 		ArrayList<BookingPricingRule> rules = new ArrayList<>();
 		try {
 			connection = DriverManager.getConnection(databaseName);
@@ -516,18 +513,11 @@ public class DatabaseHandler {
 			statement = connection.createStatement();
 			String sql = "select * from calendar_rules";
 			ruleData = statement.executeQuery(sql);
-			dates = new HashSet<>();
 			while (ruleData.next()) {
-				rate = ruleData.getFloat("rate");
-				dates = tempRules.get(rate);
-				if (dates == null) dates = new HashSet<>();
+				ArrayList<Date> dates = new ArrayList<>();
 				dates.add(formatter.parse(ruleData.getString("date")));
-				tempRules.put(rate, dates);
+				rules.add( new BookingPricingRule(ruleData.getFloat("rate"), dates) );
 			}
-			for (Map.Entry<Float, HashSet<java.util.Date>> e: tempRules.entrySet()) {
-				rules.add(new BookingPricingRule(e.getKey(), new ArrayList<>(e.getValue())));
-			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

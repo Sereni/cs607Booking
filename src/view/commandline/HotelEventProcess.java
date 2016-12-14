@@ -1,13 +1,9 @@
-package view;
+package view.commandline;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-
-import model.ExtraService;
 import model.HotelEventModel;
-import model.Room;
 /**
  * abstract model for events in a hotel
  * each event contains id, checkIn, checkOut, user email and list of rooms
@@ -15,7 +11,7 @@ import model.Room;
  * @author Aida
  *
  */
-public abstract class HotelEvent implements Runnable {
+public abstract class HotelEventProcess implements Runnable {
 
 	protected HotelEventModel model;
 	
@@ -43,19 +39,6 @@ public abstract class HotelEvent implements Runnable {
 			e.printStackTrace();
 		}
 		return email;
-	}
-	
-	protected void showListOfRooms() {
-		int nights = (int) (( model.checkOut.getTime() - model.checkIn.getTime() ) / ( 1000*60*60*24)) ;
-		for ( Room room : model.rooms ) {
-			System.out.println(room+" for "+nights+" night(s).");
-		}
-	}
-	
-	protected void showListOfServices() {
-		for (HashMap.Entry<ExtraService, Integer> entry : model.services.entrySet()){
-		    System.out.println(entry.getKey() + " for " + entry.getValue() +" times.");
-		}
 	}
 
 	protected abstract boolean userConfirmation();
