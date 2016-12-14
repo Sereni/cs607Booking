@@ -19,7 +19,7 @@ import model.Room;
  */
 public class CancellationEventProcess extends HotelEventProcess{
 
-	public CancellationEventProcess() {
+	public CancellationEventProcess() throws Exception {
 		int id = 0;
 		System.out.println("Enter id of booking");
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
@@ -31,11 +31,10 @@ public class CancellationEventProcess extends HotelEventProcess{
 			e.printStackTrace();
 		}
 		//retrieve event
-		try {
-			model = new DatabaseHandler().getCancelingBooking(id);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
+		model = new DatabaseHandler().getCancelingBooking(id);
+		if (model == null) throw new Exception();
+		
 	}
 	/**
 	 * It's main flow of booking and it's based on requirements

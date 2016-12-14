@@ -66,6 +66,8 @@ public class FirstWindow extends JFrame {
 				cancellationButton.getPreferredSize().width, cancellationButton.getPreferredSize().height);
 		cancellationButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+            	window.setVisible(false);
+                new CancelIdWindow().setVisible(true);
          
             }
         }); 

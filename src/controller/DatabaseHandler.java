@@ -167,10 +167,10 @@ public class DatabaseHandler {
 			connection.setAutoCommit(false);
 			statement = connection.createStatement();
 
-			String sql = String.format("select * from bookings where id=%d;", number);
+			String sql = String.format("select * from bookings where id=%d and canceled!=1;", number);
 			results = statement.executeQuery(sql);
 			if (!results.next()) {
-				throw new RecordNotFoundException();
+				return null;
 			}
 
 			bookingId = results.getInt("id");

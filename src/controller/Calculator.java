@@ -13,7 +13,6 @@ import model.HotelEventModel;
 import model.HotelPricingRule;
 import model.Room;
 
-
 /**
  * singelton calculator
  * @author aida
@@ -70,10 +69,12 @@ public class Calculator {
 			}
 			for ( Room room : booking.rooms ) {
 				payment += room.getBasePrice()*multiplier;
+				System.out.println(room.getBasePrice()+" * "+String.format("%.2f", multiplier)+" + ");
 			}
-			System.out.println(payment+"");
 		}
-		payment += getPriceForServices(booking);
+		int servicePayment = getPriceForServices(booking);
+		payment += servicePayment;
+		System.out.println(servicePayment+"\n= "+payment);
 		return payment;
 	}
 
@@ -90,13 +91,15 @@ public class Calculator {
 			int servicesPrice = getPriceForServices(cancel);
 			int roomsPrice = cancel.payment - servicesPrice;
 			int refundOfRooms = roomsPrice;
-			double multiplier;
+			double multiplier = 1;
 			for ( HotelPricingRule rule : cancellationPricingRules ) {
 				multiplier = rule.getMultiplier(cancel.checkIn);
 				refundOfRooms = (int) (multiplier*refundOfRooms);
 				if ( multiplier != 1 )
 					break;
 			}
+
+			System.out.println(refundOfRooms+"(mul="+String.format("%.2f", multiplier)+")"+" + "+servicesPrice);
 			return refundOfRooms+servicesPrice;
 		}
 		return 0; //no refund for booking that passed

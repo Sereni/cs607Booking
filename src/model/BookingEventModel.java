@@ -18,13 +18,7 @@ public class BookingEventModel extends HotelEventModel {
 	public String toString() {
 
 		String str = "Booking:\n";
-		int nights = (int) (( checkOut.getTime() - checkIn.getTime() ) / ( 1000*60*60*24)) ;
-		for ( Room room : rooms ) {
-			str += (room+" for "+nights+" night(s).\n");
-		}
-		for (HashMap.Entry<ExtraService, Integer> entry : services.entrySet()){
-		    str += (entry.getKey() + " for " + entry.getValue() +" times.\n");
-		}
+		str += super.toString();
 		str += ("Payment: "+payment+"$\n");
 		return str;
 	}

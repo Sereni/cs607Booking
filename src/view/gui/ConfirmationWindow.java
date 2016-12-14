@@ -10,6 +10,8 @@ import javax.swing.JLabel;
 
 import controller.Calculator;
 import model.BookingEventModel;
+import model.CancellationEventModel;
+import model.HotelEventModel;
 
 public class ConfirmationWindow extends JFrame {
 	
@@ -22,16 +24,19 @@ public class ConfirmationWindow extends JFrame {
 	JLabel bookingInfo;
 	JButton confirmButton;
 	
-	public ConfirmationWindow(BookingEventModel model) {
+	public ConfirmationWindow(HotelEventModel model) {
 		window = this;
 		setTitle("Confirmation");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(null);
 		getContentPane().setBackground(Color.LIGHT_GRAY);
 
-		model.payment = Calculator.getInstance().getPayment(model);
+		if ( model instanceof BookingEventModel )
+			model.payment = Calculator.getInstance().getPayment((BookingEventModel)model);
+		else
+			((CancellationEventModel)model).refund = Calculator.getInstance().getRefund((CancellationEventModel)model);
 		
-		bookingInfo = new JLabel("<html>You want to Book:<br>"+model.toString().replaceAll("\n", "<br>")+"</html>");
+		bookingInfo = new JLabel("<html>"+model.toString().replaceAll("\n", "<br>")+"</html>");
 		bookingInfo.setBounds( margin, margin,
 							windowWidth-2*margin, bookingInfo.getPreferredSize().height );
 		bookingInfo.setName("bookingInfo");
@@ -40,7 +45,7 @@ public class ConfirmationWindow extends JFrame {
 		confirmButton = new JButton("Confirm");
 		confirmButton.setName("confirmButton");
 		confirmButton.setFocusPainted(false);
-		confirmButton.setBounds( (windowWidth- confirmButton.getPreferredSize().width)/2, 150,
+		confirmButton.setBounds( (windowWidth- confirmButton.getPreferredSize().width)/2, 200,
 				confirmButton.getPreferredSize().width, confirmButton.getPreferredSize().height);
 		confirmButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {

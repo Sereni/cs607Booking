@@ -1,5 +1,6 @@
 package model;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,6 +31,18 @@ public abstract class HotelEventModel {
 		this.payment = payment;
 	}
 	
-	public abstract String toString();
+	public String toString() {
+		String str = "";
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+		str += dateFormatter.format(checkIn) +" to "+dateFormatter.format(checkOut)+"\n";
+		int nights = (int) (( checkOut.getTime() - checkIn.getTime() ) / ( 1000*60*60*24)) ;
+		for ( Room room : rooms ) {
+			str += (room+" for "+nights+" night(s).\n");
+		}
+		for (HashMap.Entry<ExtraService, Integer> entry : services.entrySet()){
+		    str += (entry.getKey() + " for " + entry.getValue() +" times.\n");
+		}
+		return str;
+	}
 
 }
