@@ -32,9 +32,9 @@ public class ConfirmationWindow extends JFrame {
 		getContentPane().setBackground(Color.LIGHT_GRAY);
 
 		if ( model instanceof BookingEventModel )
-			model.payment = Calculator.getInstance().getPayment((BookingEventModel)model);
+			model.payment = Calculator.getPayment((BookingEventModel)model);
 		else
-			((CancellationEventModel)model).refund = Calculator.getInstance().getRefund((CancellationEventModel)model);
+			((CancellationEventModel)model).refund = Calculator.getRefund((CancellationEventModel)model);
 		
 		bookingInfo = new JLabel("<html>"+model.toString().replaceAll("\n", "<br>")+"</html>");
 		bookingInfo.setBounds( margin, margin,

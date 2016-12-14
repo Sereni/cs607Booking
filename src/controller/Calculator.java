@@ -14,21 +14,15 @@ import model.HotelPricingRule;
 import model.Room;
 
 /**
- * singelton calculator
+ *  calculator
  * @author aida
  *
  */
 public class Calculator {
-
-	private static Calculator instance;
 	private static ArrayList<BookingPricingRule> bookingPricingRules;
 	private static ArrayList<CancellationPricingRules> cancellationPricingRules;
 
-	private Calculator() {
-		initBookingPricingRules();
-		initCancellationPricingRules();
-	}
-	private void initBookingPricingRules() {
+	private static void initBookingPricingRules() {
 		try {
 			bookingPricingRules = new DatabaseHandler().getPricingRules();
 		} catch (Exception e) {
@@ -36,7 +30,7 @@ public class Calculator {
 			e.printStackTrace();
 		}
 	}
-	private void initCancellationPricingRules() {
+	private static void initCancellationPricingRules() {
 		try {
 			cancellationPricingRules = new DatabaseHandler().getCancelingRules();
 		} catch (Exception e) {
@@ -44,20 +38,16 @@ public class Calculator {
 			e.printStackTrace();
 		}
 	}
-
-	public static synchronized Calculator getInstance() {
-		if ( instance == null )
-			return new Calculator();
-		return instance;
-	}
-
+	
 	/**
 	 * first calculate price of rooms based on number of nights and pricing rules
 	 * then add price of services
 	 * @param booking
 	 * @return
 	 */
-	public int getPayment(BookingEventModel booking) {
+	public static int getPayment(BookingEventModel booking) {
+
+		initBookingPricingRules();
 		int payment = 0;
 		for (Date date = booking.checkIn; date.compareTo(booking.checkOut)<0; date = new Date(date.getTime() + (1000 * 60 * 60 * 24))) {
 
@@ -85,7 +75,8 @@ public class Calculator {
 	 * @param cancel
 	 * @return
 	 */
-	public int getRefund(CancellationEventModel cancel) {
+	public static int getRefund(CancellationEventModel cancel) {
+		initCancellationPricingRules();
 		Date today = new Date();
 		if ( today.compareTo(cancel.checkIn) < 0 ) {
 			int servicesPrice = getPriceForServices(cancel);
@@ -105,7 +96,7 @@ public class Calculator {
 		return 0; //no refund for booking that passed
 	}
 
-	private int getPriceForServices(HotelEventModel event) {
+	private static int getPriceForServices(HotelEventModel event) {
 		int payment = 0;
 		for (HashMap.Entry<ExtraService, Integer> entry : event.services.entrySet()){
 			payment += entry.getKey().getPrice() * entry.getValue();

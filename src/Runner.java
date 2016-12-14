@@ -1,12 +1,20 @@
 
+import java.util.ArrayList;
+
+import model.Room;
 import view.commandline.BookingEventProcess;
 import view.commandline.CancellationEventProcess;
+import view.commandline.HotelEventProcess;
 import view.gui.FirstWindow;
 
 public class Runner {
 
 	private static final boolean runFromCL = false;
-
+	private static HotelEventProcess event;
+	
+	//TODO: actually lock them
+	ArrayList<Room> lockedRooms;
+	
 	enum HotelEventType {
 		BOOKING, CANCELING
 	}
@@ -14,10 +22,13 @@ public class Runner {
 	public static void main(String[] args) {	
 		if (runFromCL) {
 			try {
-				factoryMethod(HotelEventType.BOOKING);	
-				factoryMethod(HotelEventType.CANCELING);
+				simpleFactoryMethod(HotelEventType.BOOKING);	
+				if ( event != null )
+					new Thread ( event ).start();
+//				simpleFactoryMethod(HotelEventType.CANCELING);
+//				if ( event != null )
+//					new Thread ( event ).start();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -31,15 +42,15 @@ public class Runner {
 
 	}
 
-	private static void factoryMethod(HotelEventType type) throws InterruptedException {
+	private static void simpleFactoryMethod(HotelEventType type) throws InterruptedException {
 		System.out.println(type);
 		if ( type == HotelEventType.BOOKING ) {
-			new Thread ( new BookingEventProcess() ).start();
+			event = new BookingEventProcess();
 		}
 		if ( type == HotelEventType.CANCELING ) {
 
 			try {
-				new Thread ( new CancellationEventProcess() ).start();
+				event = new CancellationEventProcess();
 			} catch (Exception e) {
 				System.out.println("No booking with this id or it was cancelled before");
 			}

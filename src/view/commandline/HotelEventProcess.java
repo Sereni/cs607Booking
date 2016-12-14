@@ -3,6 +3,8 @@ package view.commandline;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import model.BlockedRooms;
 import model.HotelEventModel;
 /**
  * abstract model for events in a hotel
@@ -11,9 +13,13 @@ import model.HotelEventModel;
  * @author Aida
  *
  */
+
+//template method
 public abstract class HotelEventProcess implements Runnable {
 
 	protected HotelEventModel model;
+	
+	protected BlockedRooms blockedRooms;
 	
 	/**
 	 * run event
@@ -47,5 +53,7 @@ public abstract class HotelEventProcess implements Runnable {
 	 * abstract function which should be implemented in children classes
 	 */
 	protected abstract void doEvent();
+	
+	protected abstract void update();
 
 }

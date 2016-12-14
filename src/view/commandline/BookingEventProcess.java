@@ -60,7 +60,7 @@ public class BookingEventProcess extends HotelEventProcess {
 		//after blocking rooms until finishing payment it should not take more than 15 mins!
 		askForExtraServices();
 		model.userEmail = askUserEmail();
-		model.payment = Calculator.getInstance().getPayment((BookingEventModel) model);
+		model.payment = new Calculator().getPayment((BookingEventModel) model);
 		
 		if ( userConfirmation() ) {
 			BankApi.pay(model.payment);
@@ -215,5 +215,11 @@ public class BookingEventProcess extends HotelEventProcess {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	@Override
+	protected void update() {
+		// TODO Auto-generated method stub
+		
 	}
 }

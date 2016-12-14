@@ -52,7 +52,7 @@ public class CancellationEventProcess extends HotelEventProcess{
 			System.out.println("You entered wrong email, please try again");
 		}
 	
-		((CancellationEventModel)model).refund = Calculator.getInstance().getRefund((CancellationEventModel) model);
+		((CancellationEventModel)model).refund = Calculator.getRefund((CancellationEventModel) model);
 		
 		if ( userConfirmation() ) {
 			BankApi.refund(((CancellationEventModel)model).refund);
@@ -91,5 +91,10 @@ public class CancellationEventProcess extends HotelEventProcess{
 			e.printStackTrace();
 		}
 		return false;
+	}
+	@Override
+	protected void update() {
+		// TODO Auto-generated method stub
+		
 	}
 }
