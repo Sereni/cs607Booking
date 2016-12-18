@@ -144,7 +144,17 @@ public class EnterDetailsWindow extends JFrame {
 				continueButton.getPreferredSize().width, continueButton.getPreferredSize().height);
 		continueButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	
+            	try {
+					model.checkIn = formatter.parse(datePickerCheckIn.getJFormattedTextField().getText());
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}try {
+					model.checkOut = formatter.parse(datePickerCheckOut.getJFormattedTextField().getText());
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
             	if ( model.checkOut == null ||
             			model.checkIn == null ) {
 					JOptionPane.showMessageDialog(window, "Please enter dates.");

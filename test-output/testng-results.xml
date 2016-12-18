@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" total="2" passed="2">
+  <reporter-output>
+  </reporter-output>
+  <suite name="Default suite" duration-ms="15098" started-at="2016-12-18T01:05:29Z" finished-at="2016-12-18T01:05:44Z">
+    <groups>
+    </groups>
+    <test name="Default test" duration-ms="15098" started-at="2016-12-18T01:05:29Z" finished-at="2016-12-18T01:05:44Z">
+      <class name="test.ScenarioTest">
+        <test-method status="PASS" signature="setupInstance()[pri:0, instance:test.ScenarioTest@5f341870]" name="setupInstance" is-config="true" duration-ms="5735" started-at="2016-12-18T01:05:29Z" finished-at="2016-12-18T01:05:34Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setupInstance -->
+        <test-method status="PASS" signature="testBooking()[pri:0, instance:test.ScenarioTest@5f341870]" name="testBooking" duration-ms="1374" started-at="2016-12-18T01:05:34Z" finished-at="2016-12-18T01:05:36Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testBooking -->
+        <test-method status="PASS" signature="shutdown()[pri:0, instance:test.ScenarioTest@5f341870]" name="shutdown" is-config="true" duration-ms="9" started-at="2016-12-18T01:05:36Z" finished-at="2016-12-18T01:05:36Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- shutdown -->
+        <test-method status="PASS" signature="setupInstance()[pri:0, instance:test.ScenarioTest@5f341870]" name="setupInstance" is-config="true" duration-ms="4121" started-at="2016-12-18T01:05:36Z" finished-at="2016-12-18T01:05:40Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setupInstance -->
+        <test-method status="PASS" signature="testCancellation()[pri:0, instance:test.ScenarioTest@5f341870]" name="testCancellation" duration-ms="3805" started-at="2016-12-18T01:05:40Z" finished-at="2016-12-18T01:05:44Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testCancellation -->
+        <test-method status="PASS" signature="shutdown()[pri:0, instance:test.ScenarioTest@5f341870]" name="shutdown" is-config="true" duration-ms="20" started-at="2016-12-18T01:05:44Z" finished-at="2016-12-18T01:05:44Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- shutdown -->
+      </class> <!-- test.ScenarioTest -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>
