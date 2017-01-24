@@ -218,7 +218,7 @@ public class BookingEventProcess extends HotelEventProcess {
 	}
 
 	@Override
-	protected void update() {
+	protected void updateBlockedRooms() {
 		// TODO Auto-generated method stub
 		
 	}

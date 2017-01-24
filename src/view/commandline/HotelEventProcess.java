@@ -54,6 +54,6 @@ public abstract class HotelEventProcess implements Runnable {
 	 */
 	protected abstract void doEvent();
 	
-	protected abstract void update();
+	protected abstract void updateBlockedRooms();
 
 }

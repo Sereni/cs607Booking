@@ -93,7 +93,7 @@ public class CancellationEventProcess extends HotelEventProcess{
 		return false;
 	}
 	@Override
-	protected void update() {
+	protected void updateBlockedRooms() {
 		// TODO Auto-generated method stub
 		
 	}
